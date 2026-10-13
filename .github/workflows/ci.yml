@@ -1,0 +1,38 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    env:
+      OMP_NUM_THREADS: "1"
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+
+      - run: uv sync --locked
+
+      - name: lint
+        run: uv run ruff check .
+
+      - name: format
+        run: uv run ruff format --check .
+
+      - name: types
+        run: uv run mypy
+
+      # CBC ships inside the PuLP wheel, so the solver needs no system package and no network.
+      - name: tests
+        run: uv run pytest -q
+
+      - name: end-to-end run on three peak days per window
+        run: |
+          uv run python scripts/generate_data.py
+          uv run peak-capacity --quick --out results-ci --workers 2
