@@ -120,9 +120,9 @@ def generate(seed: int = 11, start: date = DATA_START, end: date = DATA_END) -> 
         recorded = orders.copy()
         gaps = rng.random(recorded.shape) < 0.005
         recorded[gaps] = np.nan
-        if hub.hub == "A2":  # an order-event replay duplicated three hours of the feed
+        if hub.hub == "A2":  # an order-event replay wrote three hours of the feed three times
             i = int(np.flatnonzero((cal["date"] == date(2024, 9, 12)).to_numpy())[0])
-            recorded[i, 3:6] *= 2
+            recorded[i, 3:6] *= 3
         frames.append(
             pd.DataFrame(
                 {
