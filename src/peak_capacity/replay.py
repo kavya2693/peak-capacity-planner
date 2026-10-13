@@ -29,6 +29,8 @@ from peak_capacity.config import (
 )
 
 CLOSE_MINUTE = 60 * N_HOURS
+# The storefront stops taking orders this long before close, so the last order can still leave.
+LAST_ORDER_BUFFER = 15.0
 
 
 def lognormal_factors(rng: np.random.Generator, n: int, cv: float = TRIP_CV) -> np.ndarray:
@@ -109,7 +111,8 @@ def replay_hub_day(
     carry = 0
     for t in range(N_HOURS):
         n_new = int(hourly_demand[t])
-        times = np.sort(60 * t + 60 * rng_arr.random(n_new + carry))
+        width = 60.0 - (LAST_ORDER_BUFFER if t == N_HOURS - 1 else 0.0)
+        times = np.sort(60 * t + width * rng_arr.random(n_new + carry))
         cap = slot_cap[t]
         n_acc = len(times) if not np.isfinite(cap) else min(len(times), int(np.floor(cap + 1e-9)))
         placed.append(times[:n_acc])
