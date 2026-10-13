@@ -44,5 +44,8 @@ check_untyped_defs = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-# PuLP 3 still bundles CBC and says the bundled command will go in PuLP 4; pinned below 4.
-filterwarnings = ["ignore:PULP_CBC_CMD is deprecated:DeprecationWarning"]
+# PuLP 3 announces its 4.0 API (bundled CBC command, variable constructor); pinned below 4.
+filterwarnings = [
+    "ignore:PULP_CBC_CMD is deprecated:DeprecationWarning",
+    "ignore:Constructing LpVariable:DeprecationWarning",
+]
