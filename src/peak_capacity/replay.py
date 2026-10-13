@@ -136,7 +136,10 @@ def replay_hub_day(
 
     trip = trip_minutes * lognormal_factors(rng_trip, len(orders))
     depart, _ = dispatch(orders + PICK_MINUTES, rider_start, rider_end, trip, traffic)
-    delivered = depart + ONE_WAY_SHARE * trip * traffic[np.minimum(np.nan_to_num(depart) // 60, N_HOURS - 1).astype(int)]
+    delivered = (
+        depart
+        + ONE_WAY_SHARE * trip * traffic[np.minimum(np.nan_to_num(depart) // 60, N_HOURS - 1).astype(int)]
+    )
     lead = delivered - orders
     ok = ~np.isnan(lead)
     on_time = int((lead[ok] <= PROMISE_MINUTES).sum())

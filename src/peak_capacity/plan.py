@@ -83,12 +83,12 @@ def plan_city_day(
     """`demand[h][t]` expected orders, `rate[h][t]` orders per rider-hour at fluid speed."""
     prob = pulp.LpProblem(f"plan_{city}", pulp.LpMinimize)
     hubs = list(demand)
-    T = range(N_HOURS)
+    hours = range(N_HOURS)
     own = {(h, s): pulp.LpVariable(f"own_{h}_{s}", 0, cat="Integer") for h in hubs for s in OWN_STARTS}
     gig = {(h, s): pulp.LpVariable(f"gig_{h}_{s}", 0, cat="Integer") for h in hubs for s in GIG_STARTS}
 
     def cont(name: str) -> dict[tuple[str, int], pulp.LpVariable]:
-        return {(h, t): pulp.LpVariable(f"{name}_{h}_{t}", 0) for h in hubs for t in T}
+        return {(h, t): pulp.LpVariable(f"{name}_{h}_{t}", 0) for h in hubs for t in hours}
 
     acc, on, late, back, spill = cont("acc"), cont("on"), cont("late"), cont("back"), cont("spill")
 
@@ -97,9 +97,9 @@ def plan_city_day(
         riders = {
             t: pulp.lpSum(own[h, s] for s in OWN_STARTS if s <= t < s + OWN_SHIFT_HOURS)
             + pulp.lpSum(gig[h, s] for s in GIG_STARTS if s <= t < s + GIG_BLOCK_HOURS)
-            for t in T
+            for t in hours
         }
-        for t in T:
+        for t in hours:
             arrivals = demand[h][t] + (SLOT_RETRY * spill[h, t - 1] if t > 0 else 0)
             prob += spill[h, t] == arrivals - acc[h, t]
             prob += on[h, t] <= acc[h, t]
@@ -107,15 +107,15 @@ def plan_city_day(
             prob += back[h, t] == (back[h, t - 1] if t > 0 else 0) + acc[h, t] - on[h, t] - late[h, t]
             prob += riders[t] <= max_on_duty[h]
         prob += back[h, N_HOURS - 1] == 0
-        prob += pulp.lpSum(on[h, t] for t in T) >= target * pulp.lpSum(acc[h, t] for t in T)
-        lost = (1 - SLOT_RETRY) * pulp.lpSum(spill[h, t] for t in T if t < N_HOURS - 1) + spill[
+        prob += pulp.lpSum(on[h, t] for t in hours) >= target * pulp.lpSum(acc[h, t] for t in hours)
+        lost = (1 - SLOT_RETRY) * pulp.lpSum(spill[h, t] for t in hours if t < N_HOURS - 1) + spill[
             h, N_HOURS - 1
         ]
         cost_terms += [
             OWN_SHIFT_COST * pulp.lpSum(own[h, s] for s in OWN_STARTS),
             GIG_BLOCK_COST * pulp.lpSum(gig[h, s] for s in GIG_STARTS),
             LOST_ORDER_COST * lost,
-            LATE_ORDER_COST * pulp.lpSum(back[h, t] for t in T),
+            LATE_ORDER_COST * pulp.lpSum(back[h, t] for t in hours),
         ]
     prob += pulp.lpSum(own.values()) <= own_available
     prob += pulp.lpSum(cost_terms)
@@ -126,8 +126,8 @@ def plan_city_day(
         o = {s: round(own[h, s].value() or 0) for s in OWN_STARTS}
         g = {s: round(gig[h, s].value() or 0) for s in GIG_STARTS}
         r = riders_on_duty(o, g)
-        a = np.array([acc[h, t].value() or 0.0 for t in T])
-        spills = np.array([spill[h, t].value() or 0.0 for t in T])
+        a = np.array([acc[h, t].value() or 0.0 for t in hours])
+        spills = np.array([spill[h, t].value() or 0.0 for t in hours])
         # The storefront keeps an hour open until the roster's throughput for that hour is sold.
         cap = np.maximum(a, derate * rate[h] * r)
         plan.hubs.append(
@@ -138,7 +138,7 @@ def plan_city_day(
                 riders=r,
                 slot_cap=cap,
                 accepted=float(a.sum()),
-                on_time=float(sum(on[h, t].value() or 0.0 for t in T)),
+                on_time=float(sum(on[h, t].value() or 0.0 for t in hours)),
                 lost=float((1 - SLOT_RETRY) * spills[:-1].sum() + spills[-1]),
                 rider_cost=OWN_SHIFT_COST * sum(o.values()) + GIG_BLOCK_COST * sum(g.values()),
             )

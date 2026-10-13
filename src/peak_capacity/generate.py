@@ -102,7 +102,8 @@ def generate(seed: int = 11, start: date = DATA_START, end: date = DATA_END) -> 
     for c in CITIES:
         for y in sorted({d.year for d in cal["date"]}):
             idx = np.flatnonzero([d.year == y and d.month in (1, 2, 12) for d in cal["date"]])
-            rain[c][rng.choice(idx, size=2, replace=False)] = True
+            if len(idx) >= 2:
+                rain[c][rng.choice(idx, size=2, replace=False)] = True
 
     frames = []
     for hub in HUBS:
@@ -120,9 +121,9 @@ def generate(seed: int = 11, start: date = DATA_START, end: date = DATA_END) -> 
         recorded = orders.copy()
         gaps = rng.random(recorded.shape) < 0.005
         recorded[gaps] = np.nan
-        if hub.hub == "A2":  # an order-event replay wrote three hours of the feed three times
-            i = int(np.flatnonzero((cal["date"] == date(2024, 9, 12)).to_numpy())[0])
-            recorded[i, 3:6] *= 3
+        spike_day = np.flatnonzero((cal["date"] == date(2024, 9, 12)).to_numpy())
+        if hub.hub == "A2" and len(spike_day):  # an order-event replay wrote three hours three times
+            recorded[spike_day[0], 3:6] *= 3
         frames.append(
             pd.DataFrame(
                 {
