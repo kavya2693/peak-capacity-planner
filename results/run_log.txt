@@ -1,2 +1,4 @@
 [    1.1s] cleaned feed: {'hub_hours': 263040, 'gaps_filled': 1340.0, 'spikes_replaced': 309.0, 'outage_hub_days': 2}
 [    5.1s] solving 2601 city-day plans for 17 configurations with 4 workers
+/opt/anaconda3/lib/python3.11/multiprocessing/resource_tracker.py:254: UserWarning: resource_tracker: There appear to be 5 leaked semaphore objects to clean up at shutdown
+  warnings.warn('resource_tracker: There appear to be %d '

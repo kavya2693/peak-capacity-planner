@@ -78,7 +78,8 @@ def plan_city_day(
     own_available: int,
     target: float,
     derate: float = 1.0,
-    time_limit: int = 10,
+    max_nodes: int = 2000,
+    time_limit: int = 120,
 ) -> CityDayPlan:
     """`demand[h][t]` expected orders, `rate[h][t]` orders per rider-hour at fluid speed."""
     prob = pulp.LpProblem(f"plan_{city}", pulp.LpMinimize)
@@ -119,9 +120,20 @@ def plan_city_day(
         ]
     prob += pulp.lpSum(own.values()) <= own_available
     prob += pulp.lpSum(cost_terms)
-    prob.solve(pulp.PULP_CBC_CMD(msg=False, timeLimit=time_limit, gapRel=0.005, threads=1))
+    # A node limit, not a wall-clock limit, stops the search, so a rerun on a busier machine
+    # returns the same plan. The CPU-time limit is only a backstop.
+    prob.solve(
+        pulp.PULP_CBC_CMD(
+            msg=False,
+            gapRel=0.005,
+            maxNodes=max_nodes,
+            timeLimit=time_limit,
+            timeMode="cpu",
+            threads=1,
+        )
+    )
 
-    plan = CityDayPlan(city=city, status=pulp.LpStatus[prob.status])
+    plan = CityDayPlan(city=city, status=pulp.LpSolution[prob.sol_status])
     for h in hubs:
         o = {s: round(own[h, s].value() or 0) for s in OWN_STARTS}
         g = {s: round(gig[h, s].value() or 0) for s in GIG_STARTS}

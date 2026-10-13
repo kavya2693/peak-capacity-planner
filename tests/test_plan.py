@@ -21,7 +21,7 @@ def _plan(target: float, level: float = 600, max_on: int = 60, own_avail: int = 
 
 def test_plan_meets_on_time_target_and_pool_limits() -> None:
     plan = _plan(0.99, own_avail=12)
-    assert plan.status == "Optimal"
+    assert plan.status in ("Optimal Solution Found", "Solution Found")
     assert sum(sum(h.own.values()) for h in plan.hubs) <= 12
     for h in plan.hubs:
         assert h.planned_otd >= 0.99 - 1e-6

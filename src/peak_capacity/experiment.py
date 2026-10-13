@@ -165,11 +165,12 @@ def run(
                     )
     log(f"solving {len(tasks)} city-day plans for {len(configs)} configurations with {workers} workers")
 
-    if workers > 1:
-        with ProcessPoolExecutor(max_workers=workers) as ex:
-            solved = list(ex.map(_solve, tasks, chunksize=4))
-    else:
-        solved = [_solve(t) for t in tasks]
+    solved: list[tuple[CityDayTask, CityDayPlan]] = []
+    with ProcessPoolExecutor(max_workers=max(1, workers)) as ex:
+        for result in ex.map(_solve, tasks, chunksize=4):
+            solved.append(result)
+            if len(solved) % 200 == 0:
+                log(f"  solved {len(solved)}/{len(tasks)} city-day plans")
 
     rows = []
     for n, (task, plan) in enumerate(solved, 1):
