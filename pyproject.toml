@@ -1,0 +1,47 @@
+[project]
+name = "peak-capacity-planner"
+version = "0.1.0"
+description = "Rider shifts and delivery slots for Ramadan and a November mega-sale, planned by MIP and checked in a queue replay"
+requires-python = ">=3.11,<3.13"
+license = { text = "MIT" }
+dependencies = [
+    "duckdb>=1.1",
+    "numpy>=1.26",
+    "pandas>=2.2",
+    "pulp>=2.9",
+    "scikit-learn>=1.5",
+]
+
+[project.scripts]
+peak-capacity = "peak_capacity.cli:main"
+
+[dependency-groups]
+dev = [
+    "mypy>=1.15",
+    "pandas-stubs>=2.2",
+    "pytest>=8.3",
+    "ruff>=0.11",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/peak_capacity"]
+
+[tool.ruff]
+line-length = 110
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "UP", "B", "SIM", "RUF"]
+
+[tool.mypy]
+python_version = "3.11"
+files = ["src"]
+ignore_missing_imports = true
+check_untyped_defs = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
