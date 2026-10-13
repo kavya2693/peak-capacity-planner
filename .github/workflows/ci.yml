@@ -36,3 +36,14 @@ jobs:
         run: |
           uv run python scripts/generate_data.py
           uv run peak-capacity --quick --out results-ci --workers 2
+
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: build image
+        run: docker build -t peak-capacity-planner .
+
+      - name: run the short planning cycle in the container
+        run: docker run --rm peak-capacity-planner
