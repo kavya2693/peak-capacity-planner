@@ -1,0 +1,384 @@
+{
+ "daily": [
+  {
+   "date": "2025-02-24",
+   "segment": "ordinary",
+   "rule": 0.8775,
+   "fluid": 0.9899,
+   "derate": 0.999
+  },
+  {
+   "date": "2025-02-25",
+   "segment": "ordinary",
+   "rule": 0.8516,
+   "fluid": 0.9937,
+   "derate": 0.9989
+  },
+  {
+   "date": "2025-02-26",
+   "segment": "ordinary",
+   "rule": 0.8713,
+   "fluid": 0.9789,
+   "derate": 0.9991
+  },
+  {
+   "date": "2025-02-27",
+   "segment": "ordinary",
+   "rule": 0.8776,
+   "fluid": 0.9797,
+   "derate": 0.9995
+  },
+  {
+   "date": "2025-02-28",
+   "segment": "ordinary",
+   "rule": 0.952,
+   "fluid": 0.9941,
+   "derate": 0.9983
+  },
+  {
+   "date": "2025-03-01",
+   "segment": "ramadan",
+   "rule": 0.8063,
+   "fluid": 0.9646,
+   "derate": 0.9744
+  },
+  {
+   "date": "2025-03-02",
+   "segment": "ramadan",
+   "rule": 0.7888,
+   "fluid": 0.9786,
+   "derate": 0.9941
+  },
+  {
+   "date": "2025-03-03",
+   "segment": "ramadan",
+   "rule": 0.7905,
+   "fluid": 0.975,
+   "derate": 0.986
+  },
+  {
+   "date": "2025-03-04",
+   "segment": "ramadan",
+   "rule": 0.7932,
+   "fluid": 0.9858,
+   "derate": 0.996
+  },
+  {
+   "date": "2025-03-05",
+   "segment": "ramadan",
+   "rule": 0.8396,
+   "fluid": 0.9897,
+   "derate": 0.9955
+  },
+  {
+   "date": "2025-03-06",
+   "segment": "ramadan",
+   "rule": 0.7527,
+   "fluid": 0.962,
+   "derate": 0.9849
+  },
+  {
+   "date": "2025-03-07",
+   "segment": "ramadan",
+   "rule": 0.8449,
+   "fluid": 0.9744,
+   "derate": 0.9875
+  },
+  {
+   "date": "2025-03-08",
+   "segment": "ramadan",
+   "rule": 0.8452,
+   "fluid": 0.9887,
+   "derate": 0.9943
+  },
+  {
+   "date": "2025-03-09",
+   "segment": "ramadan",
+   "rule": 0.7884,
+   "fluid": 0.9634,
+   "derate": 0.9834
+  },
+  {
+   "date": "2025-03-10",
+   "segment": "ramadan",
+   "rule": 0.7504,
+   "fluid": 0.9786,
+   "derate": 0.9916
+  },
+  {
+   "date": "2025-03-11",
+   "segment": "ramadan",
+   "rule": 0.8208,
+   "fluid": 0.9844,
+   "derate": 0.9932
+  },
+  {
+   "date": "2025-03-12",
+   "segment": "ramadan",
+   "rule": 0.8079,
+   "fluid": 0.9814,
+   "derate": 0.9914
+  },
+  {
+   "date": "2025-03-13",
+   "segment": "ramadan",
+   "rule": 0.8445,
+   "fluid": 0.9825,
+   "derate": 0.9908
+  },
+  {
+   "date": "2025-03-14",
+   "segment": "ramadan",
+   "rule": 0.8288,
+   "fluid": 0.977,
+   "derate": 0.9871
+  },
+  {
+   "date": "2025-03-15",
+   "segment": "ramadan",
+   "rule": 0.8701,
+   "fluid": 0.9855,
+   "derate": 0.9916
+  },
+  {
+   "date": "2025-03-16",
+   "segment": "ramadan",
+   "rule": 0.802,
+   "fluid": 0.9698,
+   "derate": 0.982
+  },
+  {
+   "date": "2025-03-17",
+   "segment": "ramadan",
+   "rule": 0.7474,
+   "fluid": 0.9789,
+   "derate": 0.9891
+  },
+  {
+   "date": "2025-03-18",
+   "segment": "ramadan",
+   "rule": 0.8334,
+   "fluid": 0.982,
+   "derate": 0.9901
+  },
+  {
+   "date": "2025-03-19",
+   "segment": "ramadan",
+   "rule": 0.8257,
+   "fluid": 0.9739,
+   "derate": 0.9907
+  },
+  {
+   "date": "2025-03-20",
+   "segment": "ramadan_last10",
+   "rule": 0.8538,
+   "fluid": 0.9753,
+   "derate": 0.9888
+  },
+  {
+   "date": "2025-03-21",
+   "segment": "ramadan_last10",
+   "rule": 0.8521,
+   "fluid": 0.9764,
+   "derate": 0.9922
+  },
+  {
+   "date": "2025-03-22",
+   "segment": "ramadan_last10",
+   "rule": 0.8207,
+   "fluid": 0.9666,
+   "derate": 0.98
+  },
+  {
+   "date": "2025-03-23",
+   "segment": "ramadan_last10",
+   "rule": 0.8058,
+   "fluid": 0.9719,
+   "derate": 0.9799
+  },
+  {
+   "date": "2025-03-24",
+   "segment": "ramadan_last10",
+   "rule": 0.8232,
+   "fluid": 0.976,
+   "derate": 0.9908
+  },
+  {
+   "date": "2025-03-25",
+   "segment": "ramadan_last10",
+   "rule": 0.8652,
+   "fluid": 0.9702,
+   "derate": 0.9914
+  },
+  {
+   "date": "2025-03-26",
+   "segment": "ramadan_last10",
+   "rule": 0.8498,
+   "fluid": 0.9754,
+   "derate": 0.9872
+  },
+  {
+   "date": "2025-03-27",
+   "segment": "eid",
+   "rule": 0.8638,
+   "fluid": 0.9669,
+   "derate": 0.9952
+  },
+  {
+   "date": "2025-03-28",
+   "segment": "eid",
+   "rule": 0.8512,
+   "fluid": 0.9762,
+   "derate": 0.9853
+  },
+  {
+   "date": "2025-03-29",
+   "segment": "eid",
+   "rule": 0.7451,
+   "fluid": 0.9387,
+   "derate": 0.9869
+  },
+  {
+   "date": "2025-03-30",
+   "segment": "eid",
+   "rule": 0.8141,
+   "fluid": 0.9656,
+   "derate": 0.9961
+  },
+  {
+   "date": "2025-03-31",
+   "segment": "eid",
+   "rule": 0.7897,
+   "fluid": 0.9644,
+   "derate": 0.9899
+  },
+  {
+   "date": "2025-04-01",
+   "segment": "eid",
+   "rule": 0.8562,
+   "fluid": 0.9908,
+   "derate": 0.9994
+  },
+  {
+   "date": "2025-04-02",
+   "segment": "eid",
+   "rule": 0.7703,
+   "fluid": 0.9845,
+   "derate": 0.998
+  },
+  {
+   "date": "2025-04-03",
+   "segment": "eid",
+   "rule": 0.7735,
+   "fluid": 0.9639,
+   "derate": 0.9976
+  },
+  {
+   "date": "2025-11-20",
+   "segment": "sale_week",
+   "rule": 0.9367,
+   "fluid": 0.9278,
+   "derate": 0.9983
+  },
+  {
+   "date": "2025-11-21",
+   "segment": "sale_week",
+   "rule": 0.9784,
+   "fluid": 0.9613,
+   "derate": 0.9899
+  },
+  {
+   "date": "2025-11-22",
+   "segment": "sale_week",
+   "rule": 0.9694,
+   "fluid": 0.976,
+   "derate": 0.997
+  },
+  {
+   "date": "2025-11-23",
+   "segment": "sale_week",
+   "rule": 0.9686,
+   "fluid": 0.9914,
+   "derate": 0.996
+  },
+  {
+   "date": "2025-11-24",
+   "segment": "sale_week",
+   "rule": 0.9665,
+   "fluid": 0.9904,
+   "derate": 0.9983
+  },
+  {
+   "date": "2025-11-25",
+   "segment": "sale_week",
+   "rule": 0.9632,
+   "fluid": 0.9912,
+   "derate": 0.9975
+  },
+  {
+   "date": "2025-11-26",
+   "segment": "sale_week",
+   "rule": 0.9794,
+   "fluid": 0.9805,
+   "derate": 0.9937
+  },
+  {
+   "date": "2025-11-27",
+   "segment": "sale_week",
+   "rule": 0.9691,
+   "fluid": 0.9793,
+   "derate": 0.9949
+  },
+  {
+   "date": "2025-11-28",
+   "segment": "sale_day",
+   "rule": 0.0221,
+   "fluid": 0.8464,
+   "derate": 0.9595
+  },
+  {
+   "date": "2025-11-29",
+   "segment": "sale_week",
+   "rule": 0.1296,
+   "fluid": 0.9467,
+   "derate": 0.9951
+  },
+  {
+   "date": "2025-11-30",
+   "segment": "sale_week",
+   "rule": 0.8774,
+   "fluid": 0.9384,
+   "derate": 0.988
+  },
+  {
+   "date": "2025-12-01",
+   "segment": "sale_week",
+   "rule": 0.8683,
+   "fluid": 0.9276,
+   "derate": 0.9704
+  }
+ ],
+ "overall": {
+  "rule": 0.7692,
+  "fluid": 0.9644,
+  "derate": 0.989
+ },
+ "disagree": [
+  {
+   "plan": "mip_t99_d85",
+   "replay_otd": 0.989,
+   "served_on_time_share": 0.9413,
+   "lost_share": 0.0482,
+   "lost_margin": 1092030.0,
+   "total_cost": 9107180.0
+  },
+  {
+   "plan": "mip_t99_d85_derated_caps",
+   "replay_otd": 0.9992,
+   "served_on_time_share": 0.9057,
+   "lost_share": 0.0936,
+   "lost_margin": 2118750.0,
+   "total_cost": 10133900.0
+  }
+ ]
+}

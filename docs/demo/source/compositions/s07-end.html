@@ -1,0 +1,68 @@
+<!doctype html>
+<html>
+  <head><meta charset="UTF-8" /></head>
+  <body>
+    <template>
+      <style>
+        #endcard-root { position: absolute; inset: 0; }
+        #endcard-root .endmap {
+          position: absolute; left: 1420px; top: 250px; width: 460px; height: 485px; opacity: 0.35;
+          -webkit-mask-image: radial-gradient(ellipse at center, #000 45%, transparent 72%);
+          mask-image: radial-gradient(ellipse at center, #000 45%, transparent 72%);
+        }
+        #endcard-root .end { position: absolute; left: 120px; top: 270px; width: 1680px; }
+        #endcard-root .kicker { font-family: var(--mono); font-size: 26px; letter-spacing: 0.16em; color: var(--c-opt); }
+        #endcard-root .name { margin-top: 18px; font-family: var(--mono); font-size: 100px; font-weight: 700; letter-spacing: -0.04em; color: var(--ink); }
+        #endcard-root .url { margin-top: 18px; font-family: var(--mono); font-size: 42px; color: var(--c-opt); }
+        #endcard-root .chips { display: flex; gap: 18px; margin-top: 52px; }
+        #endcard-root .chip { display: block; font-family: var(--mono); font-size: 30px; font-weight: 700; padding: 12px 26px; border-radius: 999px; color: var(--ink); }
+        #endcard-root .chip.opt { border: 2px solid rgba(63, 216, 168, 0.65); background: rgba(63, 216, 168, 0.1); }
+        #endcard-root .chip.mod { border: 2px solid rgba(185, 162, 255, 0.65); background: rgba(185, 162, 255, 0.1); }
+        #endcard-root .chip.dat { border: 2px solid rgba(127, 168, 255, 0.65); background: rgba(127, 168, 255, 0.1); }
+        #endcard-root .run { margin-top: 44px; font-family: var(--mono); font-size: 26px; color: var(--ink-mute); white-space: pre; }
+      </style>
+      <div id="endcard-root" data-composition-id="endcard" data-width="1920" data-height="1080">
+        <div class="scene" id="endcard-in">
+          <svg class="endmap" id="endcard-map" viewBox="0 0 580 485" data-layout-allow-overlap></svg>
+          <div class="end">
+            <div class="kicker" id="endcard-kicker">10 · OPEN SOURCE · MIT · RUNS ON A LAPTOP</div>
+            <div class="name" id="endcard-name">peak-capacity-planner</div>
+            <div class="url" id="endcard-url">github.com/kavya2693/peak-capacity-planner</div>
+            <div class="chips">
+              <span class="chip opt" id="endcard-c1">PuLP + CBC</span>
+              <span class="chip mod" id="endcard-c2">scikit-learn</span>
+              <span class="chip dat" id="endcard-c3">DuckDB</span>
+              <span class="chip dat" id="endcard-c4">Python</span>
+            </div>
+            <div class="run" id="endcard-run">$ make run   # 12 hubs, 1,989 city-day plans, ~3 min</div>
+          </div>
+        </div>
+      </div>
+      <script>
+        (() => {
+          /* SALE:BEGIN */ const SALE = [940.5,1560.5,2061.4,2150.8,2332.3,2348.6,2424.8,2268.1,2022.8,2119.5,2293.8,2600.7,3293.2,3557.6,3475.6,2772.8,2309.3,1600.7,861.8,419.8]; /* SALE:END */
+          // faded backdrop: the sale day's network-wide forecast orders per operating hour (export_roster.py)
+          const NS = "http://www.w3.org/2000/svg", mapSvg = document.getElementById("endcard-map");
+          const mx = Math.max(...SALE), bw = 580 / SALE.length;
+          SALE.forEach((v, i) => {
+            const r = document.createElementNS(NS, "rect"), h = (v / mx) * 400;
+            r.setAttribute("x", (i * bw + 3).toFixed(1)); r.setAttribute("y", (460 - h).toFixed(1));
+            r.setAttribute("width", (bw - 6).toFixed(1)); r.setAttribute("height", h.toFixed(1)); r.setAttribute("rx", 4);
+            r.setAttribute("fill", "#3fd8a8");
+            mapSvg.appendChild(r);
+          });
+          const tl = gsap.timeline({ paused: true });
+          tl.fromTo("#endcard-in", { opacity: 0 }, { opacity: 1, duration: 0.4 }, 0);
+          tl.fromTo("#endcard-map", { opacity: 0, scale: 0.94 }, { opacity: 0.35, scale: 1, duration: 3.6, ease: "power2.out" }, 0);
+          tl.fromTo("#endcard-kicker", { opacity: 0, x: -24 }, { opacity: 1, x: 0, duration: 0.5, ease: "power2.out" }, 0.15);
+          tl.fromTo("#endcard-name", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.7, ease: "expo.out" }, 0.25);
+          tl.fromTo("#endcard-url", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, 0.5);
+          [1, 2, 3, 4].forEach((n, i) =>
+            tl.fromTo("#endcard-c" + n, { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 0.8 + i * 0.1));
+          tl.fromTo("#endcard-run", { opacity: 0 }, { opacity: 1, duration: 0.5 }, 1.4);
+          window.__timelines["endcard"] = tl;
+        })();
+      </script>
+    </template>
+  </body>
+</html>

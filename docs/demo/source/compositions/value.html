@@ -1,0 +1,270 @@
+<!doctype html>
+<html>
+  <head><meta charset="UTF-8" /></head>
+  <body>
+    <template>
+      <style>
+        /* WHITE "END-USER VALUE" SLIDE: the artifact the user plans with (left) + a small 2D scene of the
+           person using it (right). Data comes from tools/export_roster.py, inlined by tools/inject_sheet.py. */
+        #value-root {
+          position: absolute; inset: 0;
+          --w-bg: #ffffff; --w-ink: #111827; --w-soft: #4b5563; --w-mute: #6b7280; --w-line: #d1d5db; --w-faint: #f3f4f6;
+          --w-data: #d97706; --w-model: #6d3cf0; --w-tools: #1f8fa8; --w-risk: #dc2b4a; --w-opt: #0f9f6e;
+          color: var(--w-ink); font-family: Inter, "Helvetica Neue", sans-serif;
+        }
+        #value-root .page { position: absolute; inset: 0; background: var(--w-bg); }
+        #value-root .edge { position: absolute; top: 0; width: 10px; height: 1080px; background: var(--w-model); }
+        #value-root .kick {
+          position: absolute; left: 120px; top: 84px; font-family: "JetBrains Mono", monospace; font-size: 24px;
+          font-weight: 700; letter-spacing: 0.18em; color: var(--w-mute);
+        }
+        #value-root .ttl {
+          position: absolute; left: 120px; top: 124px; font-family: Montserrat, sans-serif; font-weight: 900;
+          font-size: 68px; letter-spacing: -0.02em; white-space: nowrap;
+        }
+        #value-root .ttl em { font-style: normal; color: var(--w-model); }
+        #value-root .uline { position: absolute; left: 124px; top: 222px; width: 120px; height: 10px; border-radius: 5px; background: var(--w-model); transform-origin: left center; }
+
+        /* sheet */
+        #value-root .sheet {
+          position: absolute; left: 120px; top: 280px; width: 1050px; height: 640px; border: 3px solid var(--w-line);
+          border-radius: 24px; background: #fff; box-shadow: 0 18px 40px rgba(17, 24, 39, 0.08); overflow: hidden;
+        }
+        #value-root .sheet-head {
+          height: 72px; display: flex; align-items: center; justify-content: space-between; padding: 0 30px;
+          background: var(--w-ink); color: #fff; font-family: "JetBrains Mono", monospace; font-size: 22px; font-weight: 700; letter-spacing: 0.08em;
+        }
+        #value-root .sheet-head span:last-child { color: #c4b5fd; }
+        #value-root .row {
+          position: relative; display: flex; align-items: center; height: 64px; padding: 0 26px;
+          font-family: "JetBrains Mono", monospace; font-size: 22px; color: var(--w-ink); border-bottom: 2px solid var(--w-faint);
+        }
+        #value-root .row.hdr { height: 58px; font-size: 18px; font-weight: 700; letter-spacing: 0.06em; color: var(--w-mute); background: #fafafa; line-height: 1.15; }
+        #value-root .row .tint { position: absolute; inset: 0; opacity: 0; }
+        #value-root .c { position: relative; white-space: nowrap; }
+        #value-root .c1 { width: 104px; display: flex; align-items: center; gap: 10px; font-weight: 700; }
+        #value-root .c1 i { display: block; width: 14px; height: 14px; border-radius: 4px; background: var(--w-line); }
+        #value-root .c2 { width: 108px; text-align: right; padding-right: 22px; }
+        #value-root .c3 { width: 132px; text-align: right; padding-right: 22px; }
+        #value-root .c4 { width: 148px; text-align: right; padding-right: 22px; }
+        #value-root .c5 { width: 116px; text-align: right; padding-right: 22px; color: var(--w-soft); }
+        #value-root .c6 { width: 124px; text-align: right; padding-right: 22px; }
+        #value-root .c7 { width: 124px; text-align: right; padding-right: 22px; font-weight: 700; }
+        #value-root .c8 { width: 120px; text-align: right; font-weight: 700; }
+        #value-root .row.hdr .c { white-space: normal; }
+        #value-root .good { color: var(--w-opt); }
+        #value-root .warn { color: var(--w-data); }
+        #value-root .miss { color: var(--w-risk); }
+        #value-root .more { padding: 14px 30px 0; font-family: "JetBrains Mono", monospace; font-size: 20px; color: var(--w-mute); }
+        #value-root .totals {
+          position: absolute; left: 0; bottom: 0; width: 100%; height: 66px; display: flex; align-items: center; gap: 14px; padding: 0 30px;
+          background: #ecfdf5; border-top: 2px solid #a7f3d0; font-size: 22px; font-weight: 700; color: #065f46; white-space: nowrap;
+        }
+        #value-root .totals b { display: block; width: 28px; height: 28px; border-radius: 50%; background: var(--w-opt); position: relative; flex: 0 0 auto; }
+        #value-root .totals svg { position: absolute; left: 6px; top: 6px; width: 16px; height: 16px; }
+
+        /* scene */
+        #value-root .scene-lab { position: absolute; font-family: "JetBrains Mono", monospace; font-size: 20px; font-weight: 700; letter-spacing: 0.14em; color: var(--w-mute); white-space: nowrap; }
+        #value-root .desk { position: absolute; left: 1220px; top: 312px; width: 600px; height: 128px; border-radius: 20px; background: var(--w-faint); }
+        #value-root .clock {
+          position: absolute; left: 1610px; top: 344px; width: 180px; height: 64px; border-radius: 14px; background: var(--w-ink); color: #fff;
+          display: flex; align-items: center; justify-content: center; font-family: "JetBrains Mono", monospace; font-size: 34px; font-weight: 700;
+        }
+        #value-root .hubcard {
+          position: absolute; left: 1220px; width: 600px; height: 140px; border-radius: 20px; border: 3px solid var(--w-line); background: #fbfbfc;
+        }
+        #value-root .hubcard .nm {
+          position: absolute; left: 20px; top: 14px; font-family: "JetBrains Mono", monospace; font-size: 22px; font-weight: 700; color: #fff;
+          padding: 2px 12px; border-radius: 8px;
+        }
+        #value-root .hubcard .lab { position: absolute; left: 100px; top: 18px; font-family: "JetBrains Mono", monospace; font-size: 20px; color: var(--w-mute); white-space: nowrap; }
+        #value-root .hubcard .cnt { position: absolute; right: 22px; top: 14px; font-family: "JetBrains Mono", monospace; font-size: 24px; font-weight: 700; color: var(--w-ink); }
+        #value-root .hubcard .ok {
+          position: absolute; right: 18px; bottom: 16px; display: flex; align-items: center; gap: 8px; padding: 4px 12px; border-radius: 999px;
+          font-family: "JetBrains Mono", monospace; font-size: 22px; font-weight: 700; color: #fff; opacity: 0;
+        }
+        #value-root svg.layer { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; overflow: visible; }
+        #value-root .caption {
+          position: absolute; left: 120px; top: 944px; width: 1700px; font-size: 30px; font-weight: 700; color: var(--w-ink); white-space: nowrap;
+        }
+        #value-root .caption span { color: var(--w-model); }
+      </style>
+
+      <div id="value-root" data-composition-id="value" data-width="1920" data-height="1080">
+        <div class="page" id="va-page">
+          <div class="kick" id="va-kick">07 · END-USER VALUE</div>
+          <div class="ttl" id="va-ttl">What the <em>ops lead</em> gets</div>
+          <div class="uline" id="va-ul"></div>
+
+          <div class="sheet" id="va-sheet">
+            <div class="sheet-head" id="va-head"><span id="va-head-l">SALE-DAY ROSTER</span><span>MIP · RIDERS AT 85%</span></div>
+            <div class="row hdr" id="va-hdr">
+              <div class="c c1">HUB</div><div class="c c2">OWN 8H</div><div class="c c3">AGENCY 4H</div><div class="c c4">PEAK / SPACE</div>
+              <div class="c c5">BUSIEST</div><div class="c c6">ORDERS DUE</div><div class="c c7">SLOTS SOLD</div><div class="c c8">ON TIME</div>
+            </div>
+            <div id="va-rows"></div>
+            <div class="more" id="va-more"></div>
+            <div class="totals" id="va-totals"></div>
+          </div>
+
+          <div class="scene-lab" id="va-lab-desk" style="left: 1220px; top: 280px">OPS LEAD · SALE DAY</div>
+          <div class="desk" id="va-desk"></div>
+          <div class="clock" id="va-clock">07:00</div>
+          <div id="va-hubs"></div>
+          <svg class="layer" id="va-svg" viewBox="0 0 1920 1080"></svg>
+
+          <div class="caption" id="va-caption">Riders per shift and orders per hour, set weeks ahead. <span>Fewer riders, more orders on time.</span></div>
+        </div>
+        <div class="edge" id="va-edge"></div>
+      </div>
+
+      <script>
+        (() => {
+          /* SHEET:BEGIN */ const SHEET = {"day":"2025-11-28","hours":["07:00","08:00","09:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00","18:00","19:00","20:00","21:00","22:00","23:00","00:00","01:00","02:00"],"totals":{"own_riders":787,"gig_total":3348,"rider_cost":561160.0,"demand":49134,"accepted":45628,"lost":3506,"on_time":43782,"otd":0.9595,"lost_share":0.0714},"n_hubs":12,"rows":[{"hub":"A1","city":"A","own_riders":111,"gig_total":452,"peak_riders":163,"max_on_duty":163,"busiest_hour":"21:00","busiest_forecast":433.6,"busiest_slots":360,"otd":1.0,"animate":0},{"hub":"A2","city":"A","own_riders":52,"gig_total":450,"peak_riders":134,"max_on_duty":134,"busiest_hour":"21:00","busiest_forecast":382.3,"busiest_slots":321,"otd":0.9907,"animate":-1},{"hub":"A4","city":"A","own_riders":153,"gig_total":172,"peak_riders":115,"max_on_duty":115,"busiest_hour":"21:00","busiest_forecast":319.0,"busiest_slots":265,"otd":0.9962,"animate":-1},{"hub":"B1","city":"B","own_riders":112,"gig_total":242,"peak_riders":112,"max_on_duty":112,"busiest_hour":"20:00","busiest_forecast":332.7,"busiest_slots":280,"otd":1.0,"animate":-1},{"hub":"B2","city":"B","own_riders":0,"gig_total":399,"peak_riders":97,"max_on_duty":97,"busiest_hour":"20:00","busiest_forecast":295.9,"busiest_slots":253,"otd":0.7773,"animate":1},{"hub":"C1","city":"C","own_riders":35,"gig_total":200,"peak_riders":69,"max_on_duty":69,"busiest_hour":"20:00","busiest_forecast":272.4,"busiest_slots":197,"otd":0.9971,"animate":2}],"scene":[{"hub":"A1","riders_on_duty":[61,61,148,148,150,150,156,156,138,138,156,156,162,162,162,162,163,163,52,52],"max_on_duty":163,"forecast":[114.1,167.2,280.4,261.6,284.0,281.7,296.7,299.3,250.3,274.3,274.8,296.2,422.0,423.5,433.6,368.0,304.1,206.6,119.7,46.3],"slot_cap":[135.6,135.6,328.9,328.9,333.3,333.3,346.7,346.7,306.7,306.7,346.7,346.7,360.0,360.0,360.0,360.0,362.2,362.2,115.6,115.6],"otd":1.0},{"hub":"B2","riders_on_duty":[39,39,90,90,95,95,90,90,80,80,97,97,97,97,97,97,88,88,25,25],"max_on_duty":97,"forecast":[86.2,164.7,157.4,190.0,210.5,213.1,220.4,184.0,172.8,176.3,215.3,244.8,272.4,295.9,285.3,220.9,176.3,126.2,63.4,40.3],"slot_cap":[101.7,101.7,234.8,234.8,247.8,247.8,234.8,234.8,208.7,208.7,253.0,253.0,253.0,253.0,253.0,253.0,229.6,229.6,65.2,65.2],"otd":0.7773},{"hub":"C1","riders_on_duty":[24,24,58,58,60,60,58,58,51,51,69,69,69,69,69,69,66,66,16,16],"max_on_duty":69,"forecast":[56.7,97.7,122.6,139.4,144.1,150.2,145.2,133.7,133.0,127.1,136.8,178.4,206.4,272.4,239.9,166.0,153.5,107.1,50.8,30.1],"slot_cap":[68.6,69.3,165.7,165.7,171.4,171.4,165.7,165.7,145.7,145.7,197.1,197.1,197.1,197.1,197.1,197.1,188.6,188.6,45.7,45.7],"otd":0.9971}]}; /* SHEET:END */
+          const CONFIG = {
+            duration: 13.0,
+            colors: ["#6d3cf0", "#d97706", "#1f8fa8"], // one per animated hub
+            cardTop: [462, 618, 774],
+            person: { x: 1272, y: 376 },
+            bays: 10, // scooter icons per hub = hub space; each lit icon = 1/10 of the space in use
+            clock: [3.2, 9.2], // the 20 operating hours play out in this window
+          };
+          const NS = "http://www.w3.org/2000/svg";
+          const svg = document.getElementById("va-svg");
+          const el = (tag, attrs, parent) => {
+            const n = document.createElementNS(NS, tag);
+            Object.entries(attrs).forEach(([k, v]) => n.setAttribute(k, v));
+            (parent || svg).appendChild(n);
+            return n;
+          };
+          const CHECK = '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+          const fmt = (v) => Math.round(v).toLocaleString("en-US");
+          const pct = (v) => (v * 100).toFixed(1) + "%";
+          const cls = (v) => (v >= 0.99 ? "good" : v >= 0.9 ? "warn" : "miss");
+          const tl = gsap.timeline({ paused: true });
+          const D = CONFIG.duration;
+
+          // ---------------- sheet ----------------
+          const d = new Date(SHEET.day + "T00:00:00Z");
+          document.getElementById("va-head-l").textContent = "SALE-DAY ROSTER · " +
+            d.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", year: "numeric", timeZone: "UTC" }).toUpperCase().replace(",", "");
+          const rowsEl = document.getElementById("va-rows");
+          SHEET.rows.forEach((r, i) => {
+            const col = r.animate >= 0 ? CONFIG.colors[r.animate] : "#d1d5db";
+            rowsEl.insertAdjacentHTML("beforeend",
+              '<div class="row" id="va-r' + i + '"><div class="tint" id="va-t' + i + '" style="background:' + col + '22"></div>' +
+              '<div class="c c1"><i style="background:' + col + '"></i>' + r.hub + "</div>" +
+              '<div class="c c2">' + r.own_riders + '</div><div class="c c3">' + r.gig_total + "</div>" +
+              '<div class="c c4">' + r.peak_riders + " / " + r.max_on_duty + '</div><div class="c c5">' + r.busiest_hour + "</div>" +
+              '<div class="c c6">' + fmt(r.busiest_forecast) + '</div><div class="c c7">' + r.busiest_slots + "</div>" +
+              '<div class="c c8 ' + cls(r.otd) + '">' + pct(r.otd) + "</div></div>");
+          });
+          document.getElementById("va-more").textContent = "+ " + (SHEET.n_hubs - SHEET.rows.length) + " more hubs · at the busiest hour, slots sold < orders due";
+          const T = SHEET.totals;
+          document.getElementById("va-totals").innerHTML = "<b>" + CHECK + "</b>" + SHEET.n_hubs + " hubs · " + fmt(T.own_riders) + " own shifts + " +
+            fmt(T.gig_total) + " agency blocks · AED " + fmt(T.rider_cost) + " · " + pct(T.on_time / T.accepted) + " on time";
+
+          // ---------------- scene: person + roster, hub cards ----------------
+          const P = CONFIG.person;
+          const person = el("g", { id: "va-person" });
+          el("circle", { cx: P.x, cy: P.y - 34, r: 16, fill: "#111827" }, person);
+          el("path", { d: "M" + (P.x - 26) + " " + (P.y + 40) + "v-26a26 22 0 0 1 52 0v26z", fill: "#6d3cf0" }, person);
+          const paper = el("g", { id: "va-paper" }, person);
+          el("rect", { x: P.x + 18, y: P.y - 10, width: 26, height: 32, rx: 4, fill: "#fff", stroke: "#111827", "stroke-width": 2.5 }, paper);
+          [0, 1, 2].forEach((k) => el("line", { x1: P.x + 23, x2: P.x + 39, y1: P.y - 2 + k * 8, y2: P.y - 2 + k * 8, stroke: "#9ca3af", "stroke-width": 2 }, paper));
+          // roster sheets handed to each hub
+          const notes = SHEET.scene.map((h, i) => {
+            const g = el("g", { opacity: 0 });
+            el("rect", { x: -11, y: -14, width: 22, height: 28, rx: 3, fill: "#fff", stroke: CONFIG.colors[i], "stroke-width": 3 }, g);
+            el("line", { x1: -5, x2: 5, y1: -4, y2: -4, stroke: CONFIG.colors[i], "stroke-width": 2 }, g);
+            el("line", { x1: -5, x2: 5, y1: 3, y2: 3, stroke: CONFIG.colors[i], "stroke-width": 2 }, g);
+            return g;
+          });
+
+          const hubsEl = document.getElementById("va-hubs");
+          const scooter = (x, y, col) =>
+            '<path d="M' + (x + 3) + " " + (y + 15) + "h14l4-9h-5" + '" fill="none" stroke="' + col + '" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>' +
+            '<circle cx="' + (x + 4) + '" cy="' + (y + 18) + '" r="4" fill="' + col + '"/><circle cx="' + (x + 21) + '" cy="' + (y + 18) + '" r="4" fill="' + col + '"/>';
+          const BX = 1240, BW = 31, BAR_X = 1240, BAR_W = 14, BAR_H = 40;
+          const sceneState = SHEET.scene.map((h, i) => {
+            const top = CONFIG.cardTop[i], col = CONFIG.colors[i];
+            hubsEl.insertAdjacentHTML("beforeend",
+              '<div class="hubcard" id="va-h' + i + '" style="top:' + top + 'px"><div class="nm" style="background:' + col + '">' + h.hub + "</div>" +
+              '<div class="lab">riders on duty / space</div><div class="cnt" id="va-cnt' + i + '">0 / ' + h.max_on_duty + "</div>" +
+              '<div class="ok" id="va-ok' + i + '" style="background:' + (h.otd >= 0.99 ? "#0f9f6e" : h.otd >= 0.9 ? "#d97706" : "#dc2b4a") + '">' + pct(h.otd) + " on time</div></div>");
+            // scooter bays
+            const bays = [];
+            for (let b = 0; b < CONFIG.bays; b++) {
+              const g = el("g", { opacity: 0.18 });
+              g.innerHTML = scooter(BX + b * BW, top + 52, col);
+              bays.push(g);
+            }
+            // hourly bars: forecast orders (grey outline) vs slots sold (colour), scaled to this hub's busiest hour
+            const mx = Math.max(...h.forecast);
+            const base = top + 128;
+            const bars = h.forecast.map((f, t) => {
+              const x = BAR_X + t * (BAR_W + 3);
+              // fill = orders the hour's slots can take; an empty top = orders the storefront turns away
+              const fh = (f / mx) * BAR_H, sh = (Math.min(h.slot_cap[t], f) / mx) * BAR_H;
+              const g = el("g", {});
+              el("rect", { x, y: base - sh, width: BAR_W, height: sh, rx: 2, fill: col, opacity: 0.6 }, g);
+              el("rect", { x: x + 1, y: base - fh, width: BAR_W - 2, height: fh, rx: 2, fill: "none", stroke: "#111827", "stroke-width": 1.6 }, g);
+              return g;
+            });
+            return { h, bays, bars };
+          });
+          const hourEl = document.getElementById("va-clock");
+          const setHour = (hf) => {
+            const t = Math.min(SHEET.hours.length - 1, Math.max(0, Math.floor(hf)));
+            hourEl.textContent = SHEET.hours[t];
+            sceneState.forEach((s, i) => {
+              const on = s.h.riders_on_duty[t];
+              const lit = Math.round((on / s.h.max_on_duty) * CONFIG.bays);
+              s.bays.forEach((b, k) => b.setAttribute("opacity", k < lit ? 1 : 0.18));
+              s.bars.forEach((b, k) => b.setAttribute("opacity", k <= t ? 1 : 0));
+              document.getElementById("va-cnt" + i).textContent = on + " / " + s.h.max_on_duty;
+            });
+          };
+          setHour(-1);
+          sceneState.forEach((s) => s.bars.forEach((b) => b.setAttribute("opacity", 0)));
+          sceneState.forEach((s) => s.bays.forEach((b) => b.setAttribute("opacity", 0.18)));
+
+          // ---------------- choreography ----------------
+          tl.fromTo("#va-page", { clipPath: "inset(0px 100% 0px 0px)" }, { clipPath: "inset(0px 0% 0px 0px)", duration: 0.7, ease: "power3.inOut" }, 0);
+          tl.fromTo("#va-edge", { x: 0, opacity: 1 }, { x: 1920, duration: 0.7, ease: "power3.inOut" }, 0);
+          tl.to("#va-edge", { opacity: 0, duration: 0.1 }, 0.7);
+          tl.fromTo("#va-kick", { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 0.5);
+          tl.fromTo("#va-ttl", { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.6, ease: "power3.out" }, 0.55);
+          tl.fromTo("#va-ul", { scaleX: 0 }, { scaleX: 1, duration: 0.5, ease: "power3.out" }, 0.9);
+          tl.fromTo("#va-sheet", { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.6, ease: "power3.out" }, 0.8);
+          SHEET.rows.forEach((_, i) => tl.fromTo("#va-r" + i, { opacity: 0, x: -16 }, { opacity: 1, x: 0, duration: 0.35, ease: "power2.out" }, 1.2 + i * 0.22));
+          tl.fromTo("#va-more", { opacity: 0 }, { opacity: 1, duration: 0.4 }, 1.2 + SHEET.rows.length * 0.22);
+          tl.fromTo("#va-totals", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, 2.8);
+          tl.fromTo(["#va-desk", "#va-lab-desk", "#va-clock"], { opacity: 0 }, { opacity: 1, duration: 0.5 }, 0.9);
+          tl.fromTo("#va-person", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, 1.1);
+          tl.fromTo("#va-paper", { rotation: 0 }, { rotation: -10, svgOrigin: P.x + 31 + " " + (P.y + 6), duration: 0.3, ease: "sine.inOut", yoyo: true, repeat: 5 }, 1.8);
+          sceneState.forEach((s, i) => tl.fromTo("#va-h" + i, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, 1.3 + i * 0.15));
+          // hand-off: one roster to each animated hub, its sheet row lights up
+          SHEET.rows.forEach((r, i) => {
+            if (r.animate < 0) return;
+            const k = r.animate, at = 2.2 + k * 0.3, ty = CONFIG.cardTop[k] + 30;
+            tl.to("#va-t" + i, { opacity: 1, duration: 0.25 }, at);
+            tl.fromTo(notes[k], { attr: { opacity: 0 }, x: P.x + 31, y: P.y + 6 }, { attr: { opacity: 1 }, duration: 0.05 }, at);
+            tl.to(notes[k], { x: 1560, y: ty, duration: 0.55, ease: "power2.inOut" }, at);
+            tl.to(notes[k], { attr: { opacity: 0 }, duration: 0.15 }, at + 0.55);
+            tl.to("#va-t" + i, { opacity: 0.45, duration: 0.4 }, at + 0.9);
+          });
+          // the day plays out: riders on duty fill the bays, hourly forecast vs slots sold draw in
+          const clock = { h: -1 };
+          tl.fromTo(clock, { h: 0 }, { h: SHEET.hours.length - 0.01, duration: CONFIG.clock[1] - CONFIG.clock[0], ease: "none", onUpdate: () => setHour(clock.h) }, CONFIG.clock[0]);
+          sceneState.forEach((s, i) => tl.fromTo("#va-ok" + i, { opacity: 0, scale: 0.85 }, { opacity: 1, scale: 1, duration: 0.4, ease: "power3.out" }, CONFIG.clock[1] + 0.1 + i * 0.15));
+          tl.fromTo("#va-caption", { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.6, ease: "power3.out" }, 9.7);
+          // wipe out (white -> dark), revealing the next dark scene underneath
+          tl.to("#va-page", { clipPath: "inset(0px 0px 0px 100%)", duration: 0.7, ease: "power3.inOut" }, D - 0.7);
+          tl.fromTo("#va-edge", { x: 0, opacity: 0 }, { x: 1920, opacity: 1, duration: 0.7, ease: "power3.inOut", immediateRender: false }, D - 0.7);
+          window.__timelines["value"] = tl;
+        })();
+      </script>
+    </template>
+  </body>
+</html>

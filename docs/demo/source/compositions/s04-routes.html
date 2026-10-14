@@ -1,0 +1,190 @@
+<!doctype html>
+<html>
+  <head><meta charset="UTF-8" /></head>
+  <body>
+    <template>
+      <style>
+        #routes-root { position: absolute; inset: 0; }
+        #routes-root .sub { position: absolute; left: 120px; top: 196px; font-family: var(--mono); font-size: 22px; color: var(--ink-soft); }
+        #routes-root .legend {
+          position: absolute; right: 120px; top: 196px; display: flex; gap: 26px; font-family: var(--mono); font-size: 22px; color: var(--ink-soft);
+        }
+        #routes-root .legend span { display: flex; align-items: center; gap: 10px; }
+        #routes-root .legend i { display: block; width: 34px; height: 5px; border-radius: 3px; }
+        #routes-root svg.chart { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; overflow: visible; }
+        #routes-root .counter {
+          position: absolute; left: 1500px; top: 290px; width: 300px; padding: 24px 26px; border-radius: 14px;
+          border: 2px solid rgba(63, 216, 168, 0.6); background: rgba(12, 22, 32, 0.92);
+        }
+        #routes-root .counter .h { font-family: var(--mono); font-size: 20px; letter-spacing: 0.1em; color: var(--ink-mute); line-height: 1.35; }
+        #routes-root .counter .who { margin-top: 18px; font-family: var(--mono); font-size: 20px; color: var(--ink-soft); }
+        #routes-root .counter .v { font-family: var(--mono); font-variant-numeric: tabular-nums; font-size: 52px; font-weight: 700; letter-spacing: -0.03em; }
+        #routes-root .counter .v.rule { color: var(--c-eval); }
+        #routes-root .counter .v.fluid { color: var(--c-model); }
+        #routes-root .counter .v.derate { color: var(--c-opt); }
+        #routes-root .note { position: absolute; font-family: var(--mono); font-size: 22px; font-weight: 700; white-space: nowrap; }
+        #routes-root .disagree {
+          position: absolute; left: 200px; top: 262px; width: 1520px; height: 560px; border-radius: 20px;
+          border: 2px solid rgba(255, 138, 115, 0.55); background: rgba(12, 22, 32, 0.97);
+          box-shadow: 0 30px 120px rgba(0, 0, 0, 0.6); padding: 40px 56px;
+        }
+        #routes-root .dg-h { font-family: var(--mono); font-size: 24px; letter-spacing: 0.1em; color: var(--c-risk); }
+        #routes-root .dg-cols { display: flex; margin-top: 26px; padding-left: 470px; font-family: var(--mono); font-size: 20px; letter-spacing: 0.08em; color: var(--ink-mute); }
+        #routes-root .dg-cols div { width: 310px; }
+        #routes-root .dg-row { display: flex; align-items: center; height: 150px; border-bottom: 2px solid var(--line); }
+        #routes-root .dg-row:last-of-type { border-bottom: none; }
+        #routes-root .dg-who { width: 470px; font-size: 32px; font-weight: 700; color: var(--ink); line-height: 1.2; }
+        #routes-root .dg-who small { display: block; margin-top: 6px; font-family: var(--mono); font-size: 20px; font-weight: 400; color: var(--ink-mute); }
+        #routes-root .dg-cell { width: 310px; }
+        #routes-root .dg-v { font-family: var(--mono); font-variant-numeric: tabular-nums; font-size: 56px; font-weight: 700; letter-spacing: -0.03em; color: var(--ink-soft); }
+        #routes-root .dg-bar { position: relative; margin-top: 8px; width: 260px; height: 10px; border-radius: 5px; background: rgba(178, 191, 204, 0.12); }
+        #routes-root .dg-fill { position: absolute; left: 0; top: 0; width: 260px; height: 10px; border-radius: 5px; background: var(--ink-mute); transform-origin: left center; }
+        #routes-root .win .dg-v { color: var(--c-opt); }
+        #routes-root .win .dg-fill { background: var(--c-opt); }
+        #routes-root .bad { color: var(--c-risk) !important; }
+        #routes-root .dg-foot { margin-top: 18px; font-size: 28px; line-height: 1.35; color: var(--ink); }
+        #routes-root .dg-foot b { color: var(--c-risk); }
+      </style>
+
+      <div id="routes-root" data-composition-id="routes" data-width="1920" data-height="1080">
+        <div class="scene" id="routes-in">
+          <div class="eyebrow" data-layout-allow-overlap id="routes-eyebrow">06 · The system running</div>
+          <div class="scene-title" data-layout-allow-overlap id="routes-title">51 peak days, 12 hubs, three plans, replayed order by order.</div>
+          <div class="sub" id="routes-sub">On time, accepted orders, per day</div>
+          <div class="legend" id="routes-legend">
+            <span><i style="background: var(--c-eval)"></i>rule of thumb</span>
+            <span><i style="background: var(--c-model)"></i>MIP, full speed</span>
+            <span><i style="background: var(--c-opt)"></i>MIP, riders at 85%</span>
+            <span><svg width="34" height="6"><path d="M0 3h34" stroke="#3fd8a8" stroke-width="2" stroke-dasharray="6 6"/></svg>target 99%</span>
+          </div>
+          <div id="routes-chartwrap" data-layout-allow-occlusion>
+            <svg class="chart" id="routes-svg" viewBox="0 0 1920 1080"></svg>
+            <div class="note" id="routes-sale" style="left: 1150px; top: 770px; color: var(--c-eval)">sale day: rule of thumb 2.2%</div>
+          </div>
+          <div class="counter" id="routes-counter" data-layout-allow-occlusion>
+            <div class="h">ON TIME · ALL 51 DAYS</div>
+            <div class="who">rule of thumb</div>
+            <div class="v rule" id="routes-c-rule">0.0%</div>
+            <div class="who">MIP, full speed</div>
+            <div class="v fluid" id="routes-c-fluid">0.0%</div>
+            <div class="who">MIP, riders at 85%</div>
+            <div class="v derate" id="routes-c-derate">0.0%</div>
+          </div>
+
+          <div class="disagree" id="routes-dg">
+            <div class="dg-h">THE METRIC THAT DISAGREES · RIDERS AT 85% · ALL 51 DAYS</div>
+            <div class="dg-cols"><div>ON TIME · ACCEPTED</div><div>ON TIME · EVERYONE</div><div>TURNED AWAY</div></div>
+            <div id="routes-dg-rows"></div>
+            <div class="dg-foot" id="routes-dg-foot">Selling fewer slots buys <b>99.9%</b> on time, but turns away twice the customers and costs <b>+1.03M AED</b>.</div>
+          </div>
+        </div>
+      </div>
+
+      <script>
+        (() => {
+          /* SERIES:BEGIN */ const SERIES = {"daily":[{"date":"2025-02-24","segment":"ordinary","rule":0.8775,"fluid":0.9899,"derate":0.999},{"date":"2025-02-25","segment":"ordinary","rule":0.8516,"fluid":0.9937,"derate":0.9989},{"date":"2025-02-26","segment":"ordinary","rule":0.8713,"fluid":0.9789,"derate":0.9991},{"date":"2025-02-27","segment":"ordinary","rule":0.8776,"fluid":0.9797,"derate":0.9995},{"date":"2025-02-28","segment":"ordinary","rule":0.952,"fluid":0.9941,"derate":0.9983},{"date":"2025-03-01","segment":"ramadan","rule":0.8063,"fluid":0.9646,"derate":0.9744},{"date":"2025-03-02","segment":"ramadan","rule":0.7888,"fluid":0.9786,"derate":0.9941},{"date":"2025-03-03","segment":"ramadan","rule":0.7905,"fluid":0.975,"derate":0.986},{"date":"2025-03-04","segment":"ramadan","rule":0.7932,"fluid":0.9858,"derate":0.996},{"date":"2025-03-05","segment":"ramadan","rule":0.8396,"fluid":0.9897,"derate":0.9955},{"date":"2025-03-06","segment":"ramadan","rule":0.7527,"fluid":0.962,"derate":0.9849},{"date":"2025-03-07","segment":"ramadan","rule":0.8449,"fluid":0.9744,"derate":0.9875},{"date":"2025-03-08","segment":"ramadan","rule":0.8452,"fluid":0.9887,"derate":0.9943},{"date":"2025-03-09","segment":"ramadan","rule":0.7884,"fluid":0.9634,"derate":0.9834},{"date":"2025-03-10","segment":"ramadan","rule":0.7504,"fluid":0.9786,"derate":0.9916},{"date":"2025-03-11","segment":"ramadan","rule":0.8208,"fluid":0.9844,"derate":0.9932},{"date":"2025-03-12","segment":"ramadan","rule":0.8079,"fluid":0.9814,"derate":0.9914},{"date":"2025-03-13","segment":"ramadan","rule":0.8445,"fluid":0.9825,"derate":0.9908},{"date":"2025-03-14","segment":"ramadan","rule":0.8288,"fluid":0.977,"derate":0.9871},{"date":"2025-03-15","segment":"ramadan","rule":0.8701,"fluid":0.9855,"derate":0.9916},{"date":"2025-03-16","segment":"ramadan","rule":0.802,"fluid":0.9698,"derate":0.982},{"date":"2025-03-17","segment":"ramadan","rule":0.7474,"fluid":0.9789,"derate":0.9891},{"date":"2025-03-18","segment":"ramadan","rule":0.8334,"fluid":0.982,"derate":0.9901},{"date":"2025-03-19","segment":"ramadan","rule":0.8257,"fluid":0.9739,"derate":0.9907},{"date":"2025-03-20","segment":"ramadan_last10","rule":0.8538,"fluid":0.9753,"derate":0.9888},{"date":"2025-03-21","segment":"ramadan_last10","rule":0.8521,"fluid":0.9764,"derate":0.9922},{"date":"2025-03-22","segment":"ramadan_last10","rule":0.8207,"fluid":0.9666,"derate":0.98},{"date":"2025-03-23","segment":"ramadan_last10","rule":0.8058,"fluid":0.9719,"derate":0.9799},{"date":"2025-03-24","segment":"ramadan_last10","rule":0.8232,"fluid":0.976,"derate":0.9908},{"date":"2025-03-25","segment":"ramadan_last10","rule":0.8652,"fluid":0.9702,"derate":0.9914},{"date":"2025-03-26","segment":"ramadan_last10","rule":0.8498,"fluid":0.9754,"derate":0.9872},{"date":"2025-03-27","segment":"eid","rule":0.8638,"fluid":0.9669,"derate":0.9952},{"date":"2025-03-28","segment":"eid","rule":0.8512,"fluid":0.9762,"derate":0.9853},{"date":"2025-03-29","segment":"eid","rule":0.7451,"fluid":0.9387,"derate":0.9869},{"date":"2025-03-30","segment":"eid","rule":0.8141,"fluid":0.9656,"derate":0.9961},{"date":"2025-03-31","segment":"eid","rule":0.7897,"fluid":0.9644,"derate":0.9899},{"date":"2025-04-01","segment":"eid","rule":0.8562,"fluid":0.9908,"derate":0.9994},{"date":"2025-04-02","segment":"eid","rule":0.7703,"fluid":0.9845,"derate":0.998},{"date":"2025-04-03","segment":"eid","rule":0.7735,"fluid":0.9639,"derate":0.9976},{"date":"2025-11-20","segment":"sale_week","rule":0.9367,"fluid":0.9278,"derate":0.9983},{"date":"2025-11-21","segment":"sale_week","rule":0.9784,"fluid":0.9613,"derate":0.9899},{"date":"2025-11-22","segment":"sale_week","rule":0.9694,"fluid":0.976,"derate":0.997},{"date":"2025-11-23","segment":"sale_week","rule":0.9686,"fluid":0.9914,"derate":0.996},{"date":"2025-11-24","segment":"sale_week","rule":0.9665,"fluid":0.9904,"derate":0.9983},{"date":"2025-11-25","segment":"sale_week","rule":0.9632,"fluid":0.9912,"derate":0.9975},{"date":"2025-11-26","segment":"sale_week","rule":0.9794,"fluid":0.9805,"derate":0.9937},{"date":"2025-11-27","segment":"sale_week","rule":0.9691,"fluid":0.9793,"derate":0.9949},{"date":"2025-11-28","segment":"sale_day","rule":0.0221,"fluid":0.8464,"derate":0.9595},{"date":"2025-11-29","segment":"sale_week","rule":0.1296,"fluid":0.9467,"derate":0.9951},{"date":"2025-11-30","segment":"sale_week","rule":0.8774,"fluid":0.9384,"derate":0.988},{"date":"2025-12-01","segment":"sale_week","rule":0.8683,"fluid":0.9276,"derate":0.9704}],"overall":{"rule":0.7692,"fluid":0.9644,"derate":0.989},"disagree":[{"plan":"mip_t99_d85","replay_otd":0.989,"served_on_time_share":0.9413,"lost_share":0.0482,"lost_margin":1092030.0,"total_cost":9107180.0},{"plan":"mip_t99_d85_derated_caps","replay_otd":0.9992,"served_on_time_share":0.9057,"lost_share":0.0936,"lost_margin":2118750.0,"total_cost":10133900.0}]}; /* SERIES:END */
+          const tl = gsap.timeline({ paused: true });
+          const D = 14.6;
+          const NS = "http://www.w3.org/2000/svg";
+          const COL = { rule: "#f2c46d", fluid: "#b9a2ff", derate: "#3fd8a8", grid: "rgba(178,191,204,0.14)", mute: "#8494a6" };
+          const svg = document.getElementById("routes-svg");
+          const el = (tag, at, parent) => {
+            const n = document.createElementNS(NS, tag);
+            Object.entries(at).forEach(([k, v]) => n.setAttribute(k, v));
+            (parent || svg).appendChild(n);
+            return n;
+          };
+          const txt = (x, y, s, at) => { const t = el("text", Object.assign({ x, y, "font-family": "JetBrains Mono, monospace", "font-size": 20, fill: COL.mute }, at || {})); t.textContent = s; return t; };
+
+          // ---------- geometry: two panels (Ramadan window, sale fortnight), y = 70% .. 100%
+          const days = SERIES.daily;
+          const win1 = days.filter((d) => d.date < "2025-06-01"), win2 = days.filter((d) => d.date >= "2025-06-01");
+          const X0 = 190, X1 = 1440, GAP = 46, Y0 = 820, Y1 = 290, LO = 0.7, HI = 1.0;
+          const step = (X1 - X0 - GAP) / (days.length - 1 - 1);
+          const xOf = (i) => (i < win1.length ? X0 + i * step : X0 + (i - 1) * step + GAP);
+          const yOf = (v) => Y0 - ((Math.max(v, LO) - LO) / (HI - LO)) * (Y0 - Y1);
+          const grid = el("g", { id: "routes-grid" });
+          [0.7, 0.8, 0.9, 1.0].forEach((v) => {
+            el("line", { x1: X0, x2: X1, y1: yOf(v), y2: yOf(v), stroke: COL.grid, "stroke-width": 2 }, grid);
+            grid.appendChild(txt(X0 - 16, yOf(v) + 7, Math.round(v * 100) + "%", { "text-anchor": "end" }));
+          });
+          el("line", { x1: X0, x2: X1, y1: yOf(0.99), y2: yOf(0.99), stroke: COL.derate, "stroke-width": 2, "stroke-dasharray": "6 8", opacity: 0.6 }, grid);
+          // segment bands from the repo's own segment labels
+          const band = (pred, label, col) => {
+            const idx = days.map((d, i) => (pred(d) ? i : -1)).filter((i) => i >= 0);
+            if (!idx.length) return;
+            const a = xOf(idx[0]) - step / 2, b = xOf(idx[idx.length - 1]) + step / 2;
+            el("rect", { x: a, y: Y1 - 10, width: b - a, height: Y0 - Y1 + 10, fill: col, opacity: 0.07 }, grid);
+            grid.appendChild(txt((a + b) / 2, Y0 + 34, label, { "text-anchor": "middle", fill: col }));
+          };
+          band((d) => d.segment === "ramadan" || d.segment === "ramadan_last10", "Ramadan", "#b9a2ff");
+          band((d) => d.segment === "eid", "Eid", "#7fa8ff");
+          band((d) => d.segment === "sale_day", "sale", "#ff8a73");
+          grid.appendChild(txt(X0, Y1 - 22, "24 Feb – 3 Apr 2025", { fill: COL.mute }));
+          grid.appendChild(txt(xOf(win1.length), Y1 - 22, "20 Nov – 1 Dec", { fill: COL.mute }));
+
+          // ---------- lines (one path per panel so the window gap stays empty)
+          const lines = {};
+          ["rule", "fluid", "derate"].forEach((k) => {
+            const segs = [win1.map((d, i) => [xOf(i), yOf(d[k])]), win2.map((d, i) => [xOf(win1.length + i), yOf(d[k])])];
+            const g = el("g", { id: "routes-l-" + k });
+            const paths = segs.map((pts) => {
+              const d = "M" + pts.map((p) => p[0].toFixed(1) + " " + p[1].toFixed(1)).join(" L");
+              const L = pts.slice(1).reduce((s, p, i) => s + Math.hypot(p[0] - pts[i][0], p[1] - pts[i][1]), 0);
+              const p = el("path", { d, fill: "none", stroke: COL[k], "stroke-width": k === "derate" ? 5 : 3.5, "stroke-linejoin": "round",
+                "stroke-dasharray": L + " " + L, "stroke-dashoffset": L, opacity: 0.95 }, g);
+              return { p, L };
+            });
+            lines[k] = paths;
+          });
+          // the rule's sale-day collapse runs off the bottom of the axis: mark it
+          const iSale = days.findIndex((d) => d.segment === "sale_day");
+          const arrow = el("path", { d: `M${xOf(iSale)} ${Y0 - 34} L${xOf(iSale)} ${Y0 + 6} M${xOf(iSale) - 9} ${Y0 - 4} L${xOf(iSale)} ${Y0 + 6} L${xOf(iSale) + 9} ${Y0 - 4}`,
+            fill: "none", stroke: COL.rule, "stroke-width": 3, "stroke-linecap": "round", opacity: 0 });
+          document.getElementById("routes-sale").style.left = Math.round(xOf(iSale) - 392) + "px";
+
+          // ---------- phase 2 rows (from plan_summary.csv)
+          const dg = SERIES.disagree;
+          const NAMES = { mip_t99_d85: ["Sell at full rider speed", "the chosen plan"],
+            mip_t99_d85_derated_caps: ["Sell only at the 85% rate", "ablation, kept in results"] };
+          const pct = (v) => (v * 100).toFixed(1) + "%";
+          document.getElementById("routes-dg-rows").innerHTML = dg.map((r, i) =>
+            '<div class="dg-row' + (i === 0 ? " win" : "") + '" id="routes-dg-r' + i + '"><div class="dg-who">' + NAMES[r.plan][0] + "<small>" + NAMES[r.plan][1] + "</small></div>" +
+            ["replay_otd", "served_on_time_share", "lost_share"].map((k, j) =>
+              '<div class="dg-cell"><div class="dg-v' + (i === 1 && j > 0 ? " bad" : "") + '">' + pct(r[k]) + '</div><div class="dg-bar"><div class="dg-fill" id="routes-f' + i + j + '" style="width:' + (k === "lost_share" ? r[k] / 0.1 * 260 : r[k] * 260) + 'px"></div></div></div>').join("") +
+            "</div>").join("");
+
+          // ---------- choreography
+          tl.fromTo("#routes-in", { opacity: 0 }, { opacity: 1, duration: 0.4 }, 0);
+          tl.fromTo("#routes-eyebrow", { opacity: 0, x: -24 }, { opacity: 1, x: 0, duration: 0.5, ease: "power2.out" }, 0.1);
+          tl.fromTo("#routes-title", { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.7, ease: "power3.out" }, 0.2);
+          tl.fromTo(["#routes-sub", "#routes-legend"], { opacity: 0 }, { opacity: 1, duration: 0.5 }, 0.6);
+          tl.fromTo("#routes-grid", { opacity: 0 }, { opacity: 1, duration: 0.6 }, 0.7);
+          const DRAW = { rule: 1.1, fluid: 2.3, derate: 3.5 };
+          Object.entries(lines).forEach(([k, segs]) => {
+            segs.forEach((s, j) => tl.fromTo(s.p, { attr: { "stroke-dashoffset": s.L } }, { attr: { "stroke-dashoffset": 0 }, duration: j === 0 ? 1.4 : 0.6, ease: "power1.inOut" }, DRAW[k] + (j === 0 ? 0 : 1.4)));
+          });
+          tl.fromTo(arrow, { attr: { opacity: 0 } }, { attr: { opacity: 1 }, duration: 0.3 }, 3.1);
+          tl.fromTo("#routes-sale", { opacity: 0, y: 8 }, { opacity: 1, y: 0, duration: 0.4 }, 3.1);
+          tl.fromTo("#routes-counter", { opacity: 0, x: 24 }, { opacity: 1, x: 0, duration: 0.6, ease: "power3.out" }, 1.0);
+          ["rule", "fluid", "derate"].forEach((k) => {
+            const o = { v: 0 }, e = document.getElementById("routes-c-" + k);
+            tl.to(o, { v: SERIES.overall[k] * 100, duration: 1.2, ease: "power2.out", onUpdate: () => { e.textContent = o.v.toFixed(1) + "%"; } }, DRAW[k] + 0.6);
+          });
+          // phase 2: the metric that disagrees
+          const P2 = 7.6;
+          tl.to(["#routes-chartwrap", "#routes-counter"], { opacity: 0.12, duration: 0.6, ease: "power2.inOut" }, P2);
+          tl.to(["#routes-title", "#routes-sub", "#routes-legend"], { opacity: 0, duration: 0.3 }, P2);
+          tl.fromTo("#routes-dg", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.7, ease: "power3.out" }, P2 + 0.2);
+          [0, 1].forEach((i) => {
+            tl.fromTo("#routes-dg-r" + i, { opacity: 0, x: -20 }, { opacity: 1, x: 0, duration: 0.5, ease: "power2.out" }, P2 + 0.8 + i * 0.9);
+            [0, 1, 2].forEach((j) => tl.fromTo("#routes-f" + i + j, { scaleX: 0 }, { scaleX: 1, duration: 0.8, ease: "power3.out" }, P2 + 1.0 + i * 0.9 + j * 0.1));
+          });
+          tl.fromTo("#routes-dg-foot", { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, P2 + 3.0);
+          tl.to("#routes-in", { opacity: 0, duration: 0.4, ease: "power2.in" }, D - 0.4);
+          window.__timelines["routes"] = tl;
+        })();
+      </script>
+    </template>
+  </body>
+</html>

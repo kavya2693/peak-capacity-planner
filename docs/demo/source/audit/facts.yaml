@@ -1,0 +1,516 @@
+# Audit facts for the peak-capacity-planner demo video.
+# Read by tools/build_audit_report.py (paths relative to this file: repo_dir ../../../.., demo_dir .., out_dir ../..).
+#
+# Check expressions are Python, evaluated with these helpers (paths relative to the repo root;
+# a "demo:" prefix means relative to the demo project folder):
+#   R(path) -> pandas DataFrame from CSV      J(path) -> parsed JSON
+#   row(path, **eq) -> the single CSV row matching all equalities (a pandas Series)
+#   T(path) -> file text                      grep(path, regex) -> True/False
+# A check passes when fmt.format(value) == expect (or, with fmt "bool", when value is True).
+
+project:
+  name: peak-capacity-planner
+  title: "peak-capacity-planner: demo video audit report"
+  repo_url: https://github.com/kavya2693/peak-capacity-planner
+  repo_dir: ../../../..
+  demo_dir: ..
+  demo_display: docs/demo/source
+  out_dir: ../..
+  video: docs/demo/demo.mp4
+  video_duration_s: 86.2
+  outputs_dir: results
+  venv_python: .venv/bin/python
+  version_packages: [pulp, sklearn, duckdb, pandas, numpy]
+  regenerate:
+    - "make run                                   # data/ (seed 11) and results/*.csv, summary.json, run_log.txt (~3 min)"
+    - ".venv/bin/python docs/demo/source/tools/export_series.py docs/demo/source/assets/run_series.json"
+    - ".venv/bin/python docs/demo/source/tools/export_roster.py docs/demo/source/assets/sale_day_roster.json"
+    - "python3 docs/demo/source/tools/inject_sheet.py docs/demo/source/assets/run_series.json docs/demo/source/compositions/s04-routes.html --marker SERIES"
+    - "python3 docs/demo/source/tools/inject_sheet.py docs/demo/source/assets/sale_day_roster.json docs/demo/source/compositions/value.html --marker SHEET --rows A1,A2,A4,B1,B2,C1 --animate A1,B2,C1"
+    - "python3 docs/demo/source/tools/inject_sheet.py docs/demo/source/assets/sale_day_roster.json docs/demo/source/compositions/s07-end.html --marker SALE"
+    - "cd docs/demo/source && npx --yes hyperframes@0.8.156 check && npx --yes hyperframes@0.8.156 render -f 30 -q looks -o renders/peak-capacity-planner-master.mp4 && cd -"
+    - "ffmpeg -y -i docs/demo/source/renders/peak-capacity-planner-master.mp4 -c:v libx264 -preset slow -crf 25 -pix_fmt yuv420p -movflags +faststart -an docs/demo/demo.mp4"
+    - "python3 docs/demo/source/tools/build_audit_report.py docs/demo/source/audit/facts.yaml   # stills, checks, MD/DOCX/PDF"
+  seeds: {data_seed: 11, replay_and_model_seed: 0, workers: 4}
+  run_time: "results/run_log.txt: 'done' at 179.3 s for make run (4 workers) on the author's laptop"
+
+assumptions:
+  - id: A-01
+    statement: "All data is synthetic, produced by a seeded generator sized to the production problem (12 hubs, 3 cities, 2023-2025 hourly orders, about 11.2M orders). Production order data is proprietary. Sensitivity: every figure; a new seed moves every number."
+    source: "scripts/generate_data.py:14 (seed 11); src/peak_capacity/generate.py:91; README 'The data'"
+    all_figures: true
+    edit: ["src/peak_capacity/generate.py", "src/peak_capacity/config.py (HUBS)"]
+    rerun: ["make data", "make run", "export_series.py + export_roster.py + inject_sheet.py"]
+  - id: A-02
+    statement: "Rider throughput is derated to 85% of the fluid rate (60 / trip minutes per rider-hour) for the chosen plan. Sensitivity: high; at derate 1.0 replayed on-time falls from 98.9% to 96.4% and rider cost from 8.02M to 7.19M AED."
+    source: "src/peak_capacity/experiment.py:64-74 (Config derate 0.85); src/peak_capacity/service.py:19-21 (fluid_rate); plan.py:113 (derate x rate x riders)"
+    figures: [F-11, F-12, F-13, F-14, F-29, F-36, F-37, F-38, F-41, F-42, F-43, F-44, F-45, F-46, F-47, F-48, F-50, F-51, F-52, F-53, F-54, F-58, F-59, F-61, F-62, F-72]
+    edit: ["src/peak_capacity/experiment.py:64-74"]
+    rerun: ["make run", "export_series.py + export_roster.py + inject_sheet.py"]
+  - id: A-03
+    statement: "Delivered on time = within 60 minutes of the order being placed; an order is ready 6 minutes after it is placed. Sensitivity: high; every on-time share depends on it."
+    source: "src/peak_capacity/config.py:17-18 (PROMISE_MINUTES, PICK_MINUTES)"
+    figures: [F-06, F-12, F-13, F-36, F-37, F-38, F-39, F-41, F-42, F-44, F-45, F-50, F-54, F-58, F-60, F-72]
+    edit: ["src/peak_capacity/config.py:17-18"]
+    rerun: ["make run", "export_series.py + export_roster.py + inject_sheet.py"]
+  - id: A-04
+    statement: "Rider economics in AED: own rider 160 per 8-hour shift, agency rider 130 per 4-hour block, a turned-away order costs 30 in lost margin. Sensitivity: high for every cost figure; none of the on-time shares move unless the plan changes."
+    source: "src/peak_capacity/config.py:53-57 (OWN_SHIFT_COST, GIG_BLOCK_COST, LOST_ORDER_COST)"
+    figures: [F-47, F-53, F-58, F-59, F-61, F-62]
+    edit: ["src/peak_capacity/config.py:53-57"]
+    rerun: ["make run", "export_roster.py + inject_sheet.py"]
+  - id: A-05
+    statement: "Replay randomness: trips are lognormal around each hub's mean with CV 0.35, 25% slower 16:00-19:00 in Ramadan, own riders no-show 3% and agency riders 8%, and 70% of turned-away customers retry the next hour. Sensitivity: medium; changes replayed on-time and turned-away shares."
+    source: "src/peak_capacity/config.py:47-48 (TRIP_CV, IFTAR_TRAFFIC), :63-64 (no-shows), :68 (SLOT_RETRY)"
+    figures: [F-12, F-13, F-36, F-37, F-38, F-39, F-41, F-42, F-43, F-44, F-45, F-46, F-48, F-50, F-54, F-58, F-60, F-72]
+    edit: ["src/peak_capacity/config.py:47-68"]
+    rerun: ["make run", "export_series.py + export_roster.py + inject_sheet.py"]
+  - id: A-06
+    statement: "Hub space caps riders on duty at 3x the riders an ordinary weekday's busiest hour needs; own riders work 6 days in 7, drawn from a city pool. Sensitivity: high on the sale day, where the cap binds (peak on duty = space for every hub on slide 07)."
+    source: "src/peak_capacity/config.py:71 (OWN_AVAILABILITY), :75 (SPACE_MULTIPLE); generate.py:142-160 (max_on_duty, own_pool)"
+    figures: [F-03, F-04, F-50, F-51, F-52, F-56, F-72]
+    edit: ["src/peak_capacity/config.py:71-75"]
+    rerun: ["make data", "make run", "export_roster.py + inject_sheet.py"]
+  - id: A-07
+    statement: "CBC stops at a 0.5% optimality gap or 200 branch-and-bound nodes per city-day, with 20 CPU seconds as a backstop. Sensitivity: low; README reports two full runs differing by under 0.01% of cost in three configurations."
+    source: "src/peak_capacity/plan.py:82-83, :127-135; README 'How it works' (stop conditions)"
+    figures: [F-22, F-23, F-24, F-50, F-58, F-59, F-61]
+    edit: ["src/peak_capacity/plan.py:82-83"]
+    rerun: ["make run"]
+  - id: A-08
+    statement: "Forecasts are made as of a cutoff (31 Jan 2025 for Ramadan, 31 Oct 2025 for the sale) with no data after it; the event model is gradient-boosted (Poisson) on the ratio to each hub's 28-day ordinary level. Sensitivity: medium; forecast quality shows up mainly as turned-away customers."
+    source: "src/peak_capacity/config.py:112-115 (WINDOWS); src/peak_capacity/forecast.py:36-37, :71-72"
+    figures: [F-19, F-63, F-64, F-67, F-68, F-69, F-70, F-71]
+    edit: ["src/peak_capacity/config.py:112-115", "src/peak_capacity/forecast.py"]
+    rerun: ["make run"]
+  - id: A-09
+    statement: "The rule of thumb sizes own riders to the day's forecast at 70% utilisation over three fixed shift starts, adds evening agency blocks, and never closes a slot. Sensitivity: high for every 'vs rule of thumb' figure."
+    source: "src/peak_capacity/plan.py:163-204 (rule_of_thumb, utilisation=0.7)"
+    figures: [F-09, F-36, F-39, F-58, F-59, F-60, F-61, F-62]
+    edit: ["src/peak_capacity/plan.py:170"]
+    rerun: ["make run", "export_series.py + inject_sheet.py"]
+  - id: A-10
+    statement: "Slots are sold up to the roster's flat-out rider throughput (cap rule 'fluid'); the derated-cap rule is kept as an ablation. Sensitivity: high for on time vs turned away (slide 06 phase 2)."
+    source: "src/peak_capacity/plan.py:146-147; experiment.py:41, :74"
+    figures: [F-41, F-42, F-43, F-44, F-45, F-46, F-47, F-48, F-56]
+    edit: ["src/peak_capacity/experiment.py:74"]
+    rerun: ["make run", "export_series.py + inject_sheet.py"]
+  - id: A-11
+    statement: "'Ordinary weekday' for the slide 02 multiples = Monday-Friday in the 10 weeks before the sale ramp (2025-09-01..2025-11-14), all 12 hubs pooled. Sensitivity: low; Oct 1 - Nov 14 gives 4.16x / 3.85x, the same after rounding."
+    source: "this audit (definition); data/hourly_orders.csv.gz; README 'The problem' (4.2x, 3.9x)"
+    figures: [F-05, F-07]
+    edit: ["audit/facts.yaml helpers (sale_multiple)"]
+    rerun: ["build_audit_report.py"]
+  - id: A-12
+    statement: "Video rounding: percentages to 1 decimal, AED millions to 2 decimals, counts with thousands separators; '~11 days', '~3 min' and '11.2M' are rounded labels. Sensitivity: display only."
+    source: "this audit (display convention)"
+    figures: [F-05, F-07, F-08, F-15, F-25, F-47, F-48, F-54, F-59, F-62, F-73]
+    edit: ["the composition file named on each slide"]
+    rerun: ["hyperframes render"]
+  - id: A-13
+    statement: "Slide 01 (industries, everyday problems) is general delivery-operations knowledge used as context, not a result of this repo, and carries no numbers. Sensitivity: none."
+    source: "author's framing; README 'The problem' and 'Why it is hard' support problems 1, 3 and 4"
+    figures: [F-01, F-02]
+    edit: ["compositions/s01-context.html"]
+    rerun: ["hyperframes render"]
+
+figures:
+  # ---- slide 01
+  - {id: F-01, slides: ["01"], label: "Industries that relate: grocery & quick commerce, food delivery platforms, courier & last-mile fleets", shown: "3 industry chips", type: general-knowledge, source: "author's framing", key: "-", formula: "-", manual: "Context statement, not a repo output."}
+  - {id: F-02, slides: ["01"], label: "Four everyday problems (peaks move; riders booked from a forecast; busy hours queue up; on time bought by closing slots)", shown: "4 problem cards", type: general-knowledge, source: "README 'The problem', 'Why it is hard'", key: "README lines 22-31", formula: "-",
+     check: {expr: "grep('README.md', r'The dates move') and grep('README.md', r'Averages lie about queues') and grep('README.md', r'turning customers away') and grep('README.md', r'against a\\s+forecast')", fmt: bool}}
+  # ---- slide 02
+  - {id: F-03, slides: ["02", "05", "06", "08"], label: "Hubs", shown: "12 hubs", type: direct, source: "data/hubs.csv", key: "row count", formula: "-",
+     check: {expr: "len(R('data/hubs.csv'))", fmt: "{:d}", expect: "12"}}
+  - {id: F-04, slides: ["02", "05"], label: "Cities (each with an own-rider pool)", shown: "3 cities / 3 own-rider pools", type: direct, source: "data/cities.csv", key: "row count", formula: "-",
+     check: {expr: "len(R('data/cities.csv'))", fmt: "{:d}", expect: "3"}}
+  - {id: F-05, slides: ["02"], label: "Sale-day orders vs an ordinary weekday, network-wide", shown: "Sale day: 4.2× the orders", type: derived, source: "data/hourly_orders.csv.gz", key: "orders on 2025-11-28 / mean Mon-Fri daily orders 2025-09-01..11-14", formula: "49,134 / 11,696 = 4.20", note: "Matches README 'The problem' (4.2 times). Ordinary-weekday window defined in A-11.",
+     check: {expr: "sale_multiple('day')", fmt: "{:.1f}", expect: "4.2"}}
+  - {id: F-06, slides: ["02", "05"], label: "Delivery promise", shown: "delivered within 60 minutes / promise 60 min", type: direct, source: "src/peak_capacity/config.py:17", key: "PROMISE_MINUTES", formula: "-",
+     check: {expr: "grep('src/peak_capacity/config.py', r'^PROMISE_MINUTES = 60\\.0')", fmt: bool}}
+  - {id: F-07, slides: ["02"], label: "Sale day's busiest hour vs an ordinary weekday's busiest hour", shown: "busiest hour 3.9× a normal peak", type: derived, source: "data/hourly_orders.csv.gz", key: "max hourly orders 2025-11-28 / max over hours of the mean ordinary-weekday hourly orders", formula: "3.87, rounded", note: "Matches README 'The problem' (3.9 times a normal peak).",
+     check: {expr: "sale_multiple('hour')", fmt: "{:.1f}", expect: "3.9"}}
+  - {id: F-08, slides: ["02"], label: "Ramadan starts about 11 days earlier each year", shown: "Ramadan moves ~11 days a year", type: derived, source: "src/peak_capacity/config.py:81-86 (RAMADAN)", key: "first-day dates 2023-2026", formula: "mean shift between consecutive years = (12 + 10 + 11) / 3 = 11 days",
+     check: {expr: "ramadan_shift()", fmt: "{:.0f}", expect: "11"}}
+  # ---- slides 03-04
+  - {id: F-09, slides: ["03"], label: "Badges: more on time, lower rider cost, lower total cost (MIP derate 0.85 vs rule of thumb)", shown: "✓ more on time ✓ lower rider cost ✓ lower total cost", type: derived, source: "results/summary.json", key: "replay_otd, rider_cost, total_cost", formula: "mip_t99_d85 better than rule_of_thumb on all three",
+     check: {expr: "(lambda s: s['mip_t99_d85']['replay_otd'] > s['rule_of_thumb']['replay_otd'] and s['mip_t99_d85']['rider_cost'] < s['rule_of_thumb']['rider_cost'] and s['mip_t99_d85']['total_cost'] < s['rule_of_thumb']['total_cost'])(J('results/summary.json'))", fmt: bool}}
+  - {id: F-10, slides: ["03"], label: "Order history is three years of hourly counts", shown: "3 years, hour by hour", type: direct, source: "data/hourly_orders.csv.gz", key: "date years, op_hour", formula: "distinct years = 2023, 2024, 2025",
+     check: {expr: "R('data/hourly_orders.csv.gz')['date'].str[:4].nunique()", fmt: "{:d}", expect: "3"}}
+  - {id: F-11, slides: ["04", "05", "06", "07"], label: "Each rider counted at 85% of the fluid rate", shown: "85% / derate 0.85 / riders at 85%", type: direct, source: "src/peak_capacity/experiment.py:64", key: "Config('mip_t99_d85', ..., 0.85)", formula: "-",
+     check: {expr: "grep('src/peak_capacity/experiment.py', r'Config\\(\"mip_t99_d85\", \"model\", \"mip\", 0\\.99, 0\\.85\\)')", fmt: bool}}
+  - {id: F-12, slides: ["04"], label: "Replay with a perfect forecast, riders at full speed", shown: "95.0%", type: direct, source: "results/plan_summary.csv", key: "config=mip_t99_d100_oracle, replay_otd", formula: "x 100, 1 dp",
+     check: {expr: "row('results/plan_summary.csv', config='mip_t99_d100_oracle')['replay_otd']*100", fmt: "{:.1f}", expect: "95.0"}}
+  - {id: F-13, slides: ["04"], label: "Replay with a perfect forecast, riders at 85%", shown: "99.6%", type: direct, source: "results/plan_summary.csv", key: "config=mip_t99_d85_oracle, replay_otd", formula: "x 100, 1 dp",
+     check: {expr: "row('results/plan_summary.csv', config='mip_t99_d85_oracle')['replay_otd']*100", fmt: "{:.1f}", expect: "99.6"}}
+  - {id: F-14, slides: ["04"], label: "Margin", shown: "WITH A 15% MARGIN", type: derived, source: "src/peak_capacity/experiment.py:64", key: "derate 0.85", formula: "1 - 0.85 = 15%", manual: "Arithmetic on F-11 (checked there)."}
+  # ---- slide 05
+  - {id: F-15, slides: ["05"], label: "Orders in the generated feed", shown: "11.2M orders", type: direct, source: "data/hourly_orders.csv.gz", key: "sum(orders)", formula: "11,198,428 / 1e6, 1 dp",
+     check: {expr: "R('data/hourly_orders.csv.gz')['orders'].sum()/1e6", fmt: "{:.1f}", expect: "11.2"}}
+  - {id: F-16, slides: ["05"], label: "Data generator seed", shown: "generate.py · seed 11", type: direct, source: "scripts/generate_data.py:14", key: "--seed default", formula: "-",
+     check: {expr: "grep('scripts/generate_data.py', r'PEAK_SEED\", \"11\"')", fmt: bool}}
+  - {id: F-17, slides: ["05"], label: "Feed gaps filled by the DuckDB cleaning step", shown: "1,340 gaps filled", type: direct, source: "results/cleaning.csv", key: "gaps_filled", formula: "-",
+     check: {expr: "R('results/cleaning.csv')['gaps_filled'][0]", fmt: "{:,d}", expect: "1,340"}}
+  - {id: F-18, slides: ["05"], label: "Hours replaced as spikes", shown: "309 spikes fixed", type: direct, source: "results/cleaning.csv", key: "spikes_replaced", formula: "-", note: "README: the three planted spikes are among them; the rest are high-noise hours the rule should have left alone.",
+     check: {expr: "R('results/cleaning.csv')['spikes_replaced'][0]", fmt: "{:d}", expect: "309"}}
+  - {id: F-19, slides: ["05"], label: "Event model is gradient-boosted trees with a Poisson loss", shown: "HistGB · Poisson", type: direct, source: "src/peak_capacity/forecast.py:71-72", key: "HistGradientBoostingRegressor(loss='poisson')", formula: "-",
+     check: {expr: "grep('src/peak_capacity/forecast.py', r'loss=\"poisson\"') and grep('src/peak_capacity/forecast.py', r'HistGradientBoostingRegressor\\(')", fmt: bool}}
+  - {id: F-20, slides: ["05"], label: "Plan configurations", shown: "13 configs / configurations 13", type: direct, source: "results/plan_summary.csv", key: "row count", formula: "-",
+     check: {expr: "len(R('results/plan_summary.csv'))", fmt: "{:d}", expect: "13"}}
+  - {id: F-21, slides: ["05", "10"], label: "City-day plans solved", shown: "1,989", type: direct, source: "results/run_log.txt", key: "'solving 1989 city-day plans'", formula: "-",
+     check: {expr: "grep('results/run_log.txt', r'solving 1989 city-day plans for 13 configurations with 4 workers')", fmt: bool}}
+  - {id: F-22, slides: ["05"], label: "CBC relative optimality gap", shown: "CBC gap 0.5%", type: direct, source: "src/peak_capacity/plan.py:129", key: "gapRel=0.005", formula: "-",
+     check: {expr: "grep('src/peak_capacity/plan.py', r'gapRel=0\\.005')", fmt: bool}}
+  - {id: F-23, slides: ["05"], label: "CBC node limit per city-day", shown: "200 / 200 nodes", type: direct, source: "src/peak_capacity/plan.py:82", key: "max_nodes: int = 200", formula: "-", note: "The node counter animates 0 -> 200 for illustration; the pace is not a measured solve time.",
+     check: {expr: "grep('src/peak_capacity/plan.py', r'max_nodes: int = 200')", fmt: bool}}
+  - {id: F-24, slides: ["05"], label: "CPU-time backstop", shown: "CPU backstop 20 s", type: direct, source: "src/peak_capacity/plan.py:83", key: "time_limit: int = 20", formula: "-",
+     check: {expr: "grep('src/peak_capacity/plan.py', r'time_limit: int = 20') and grep('src/peak_capacity/plan.py', r'timeMode=\"cpu\"')", fmt: bool}}
+  - {id: F-25, slides: ["05", "10"], label: "Full make run wall time", shown: "full run 179 s / ~3 min", type: direct, source: "results/run_log.txt", key: "'[  179.3s] done'", formula: "179.3 s, rounded; ~3 min on slide 10", note: "README says 'about 2 min on a quiet machine'; the logged run took 179 s.",
+     check: {expr: "float(re.search(r'\\[\\s*([\\d.]+)s\\] done', T('results/run_log.txt')).group(1))", fmt: "{:.0f}", expect: "179"}}
+  - {id: F-26, slides: ["05"], label: "Operating hours", shown: "hubs open 07–03", type: derived, source: "src/peak_capacity/config.py:14-15", key: "OPEN_CLOCK_HOUR = 7, N_HOURS = 20", formula: "07:00 + 20 h = 03:00",
+     check: {expr: "grep('src/peak_capacity/config.py', r'^OPEN_CLOCK_HOUR = 7') and grep('src/peak_capacity/config.py', r'^N_HOURS = 20')", fmt: bool}}
+  - {id: F-27, slides: ["05"], label: "Hub-day replays written to hub_day.csv", shown: "7,956 hub-days", type: direct, source: "results/hub_day.csv", key: "row count", formula: "13 configs x 612 hub-days",
+     check: {expr: "len(R('results/hub_day.csv'))", fmt: "{:,d}", expect: "7,956"}}
+  - {id: F-28, slides: ["05"], label: "Replay dispatcher checked against Erlang C", shown: "✓ tested vs Erlang C", type: direct, source: "tests/test_replay.py:20", key: "test_dispatch_matches_erlang_c_waiting_probabilities", formula: "-",
+     check: {expr: "grep('tests/test_replay.py', r'def test_dispatch_matches_erlang_c_waiting_probabilities')", fmt: bool}}
+  - {id: F-29, slides: ["05"], label: "Derate chosen from the replay (ADR-0001)", shown: "Pick the derate · from the replay, not assumed · derate 0.85", type: direct, source: "docs/adr/0001-plan-with-a-fluid-mip-judge-with-an-order-replay.md", key: "Decision bullet 4", formula: "-",
+     check: {expr: "grep('docs/adr/0001-plan-with-a-fluid-mip-judge-with-an-order-replay.md', r'chosen from the replay rather than')", fmt: bool}}
+  - {id: F-30, slides: ["05"], label: "Shift menu", shown: "8h shifts · 4h agency blocks", type: direct, source: "src/peak_capacity/config.py:53, :55", key: "OWN_SHIFT_HOURS, GIG_BLOCK_HOURS", formula: "-",
+     check: {expr: "grep('src/peak_capacity/config.py', r'^OWN_SHIFT_HOURS = 8') and grep('src/peak_capacity/config.py', r'^GIG_BLOCK_HOURS = 4')", fmt: bool}}
+  - {id: F-31, slides: ["05"], label: "Every architecture box names a real file or function", shown: "transforms.py, calendar.py, forecast.py, seasonal_naive(), rule_of_thumb(), plan.py · plan_city_day(), service.py, experiment.py, replay.py, generate.py", type: direct, source: "src/peak_capacity/", key: "def names", formula: "-",
+     check: {expr: "all(grep(f, rx) for f, rx in [('src/peak_capacity/transforms.py', r'def clean'), ('src/peak_capacity/calendar.py', r'def day_features'), ('src/peak_capacity/forecast.py', r'def event_model'), ('src/peak_capacity/forecast.py', r'def seasonal_naive'), ('src/peak_capacity/forecast.py', r'def accuracy'), ('src/peak_capacity/plan.py', r'def plan_city_day'), ('src/peak_capacity/plan.py', r'def rule_of_thumb'), ('src/peak_capacity/service.py', r'def fluid_rate'), ('src/peak_capacity/experiment.py', r'def summarise'), ('src/peak_capacity/replay.py', r'def replay_hub_day'), ('src/peak_capacity/generate.py', r'def generate')])", fmt: bool}}
+  # ---- slide 06
+  - {id: F-34, slides: ["06"], label: "Peak days replayed", shown: "51 peak days", type: direct, source: "results/hub_day.csv", key: "distinct date", formula: "39 Ramadan-window days + 12 sale-window days",
+     check: {expr: "R('results/hub_day.csv')['date'].nunique()", fmt: "{:d}", expect: "51"}}
+  - {id: F-35, slides: ["06"], label: "Daily lines are the replay results, pooled over hubs (injected series equals hub_day.csv)", shown: "three daily on-time lines", type: derived, source: "results/hub_day.csv -> demo:assets/run_series.json -> s04-routes.html", key: "sum(on_time)/sum(accepted) per date and config", formula: "-",
+     check: {expr: "series_matches()", fmt: bool}}
+  - {id: F-36, slides: ["06", "08"], label: "Rule of thumb, on time (accepted orders), 51 days", shown: "76.9%", type: direct, source: "results/plan_summary.csv", key: "config=rule_of_thumb, replay_otd", formula: "x 100",
+     check: {expr: "row('results/plan_summary.csv', config='rule_of_thumb')['replay_otd']*100", fmt: "{:.1f}", expect: "76.9"}}
+  - {id: F-37, slides: ["06"], label: "MIP at full speed (derate 1.0), on time", shown: "96.4%", type: direct, source: "results/plan_summary.csv", key: "config=mip_t99_d100, replay_otd", formula: "x 100",
+     check: {expr: "row('results/plan_summary.csv', config='mip_t99_d100')['replay_otd']*100", fmt: "{:.1f}", expect: "96.4"}}
+  - {id: F-38, slides: ["06", "08"], label: "MIP, riders at 85%, on time", shown: "98.9%", type: direct, source: "results/plan_summary.csv", key: "config=mip_t99_d85, replay_otd", formula: "x 100",
+     check: {expr: "row('results/plan_summary.csv', config='mip_t99_d85')['replay_otd']*100", fmt: "{:.1f}", expect: "98.9"}}
+  - {id: F-39, slides: ["06"], label: "Rule of thumb on the sale day", shown: "sale day: rule of thumb 2.2%", type: derived, source: "results/hub_day.csv", key: "config=rule_of_thumb, segment=sale_day", formula: "sum(on_time)/sum(accepted)", note: "README: a backlog that never clears in a replay with no cancellations; read it as collapsed, not precise.",
+     check: {expr: "(lambda d: d['on_time'].sum()/d['accepted'].sum()*100)(R('results/hub_day.csv').query(\"config=='rule_of_thumb' and segment=='sale_day'\"))", fmt: "{:.1f}", expect: "2.2"}}
+  - {id: F-40, slides: ["06"], label: "On-time target line", shown: "target 99%", type: direct, source: "src/peak_capacity/experiment.py:64", key: "target 0.99", formula: "-", manual: "Same Config line as F-11 (checked there)."}
+  - {id: F-41, slides: ["06"], label: "Chosen plan: on time, accepted orders", shown: "98.9%", type: direct, source: "results/plan_summary.csv", key: "mip_t99_d85 replay_otd", formula: "x 100",
+     check: {expr: "row('results/plan_summary.csv', config='mip_t99_d85')['replay_otd']*100", fmt: "{:.1f}", expect: "98.9"}}
+  - {id: F-42, slides: ["06"], label: "Chosen plan: on time, everyone who tried to order", shown: "94.1%", type: direct, source: "results/plan_summary.csv", key: "mip_t99_d85 served_on_time_share", formula: "x 100",
+     check: {expr: "row('results/plan_summary.csv', config='mip_t99_d85')['served_on_time_share']*100", fmt: "{:.1f}", expect: "94.1"}}
+  - {id: F-43, slides: ["06"], label: "Chosen plan: turned away", shown: "4.8%", type: direct, source: "results/plan_summary.csv", key: "mip_t99_d85 lost_share", formula: "x 100",
+     check: {expr: "row('results/plan_summary.csv', config='mip_t99_d85')['lost_share']*100", fmt: "{:.1f}", expect: "4.8"}}
+  - {id: F-44, slides: ["06"], label: "Derated slot caps: on time, accepted", shown: "99.9%", type: direct, source: "results/plan_summary.csv", key: "mip_t99_d85_derated_caps replay_otd", formula: "x 100",
+     check: {expr: "row('results/plan_summary.csv', config='mip_t99_d85_derated_caps')['replay_otd']*100", fmt: "{:.1f}", expect: "99.9"}}
+  - {id: F-45, slides: ["06"], label: "Derated slot caps: on time, everyone", shown: "90.6%", type: direct, source: "results/plan_summary.csv", key: "mip_t99_d85_derated_caps served_on_time_share", formula: "x 100",
+     check: {expr: "row('results/plan_summary.csv', config='mip_t99_d85_derated_caps')['served_on_time_share']*100", fmt: "{:.1f}", expect: "90.6"}}
+  - {id: F-46, slides: ["06"], label: "Derated slot caps: turned away", shown: "9.4%", type: direct, source: "results/plan_summary.csv", key: "mip_t99_d85_derated_caps lost_share", formula: "x 100",
+     check: {expr: "row('results/plan_summary.csv', config='mip_t99_d85_derated_caps')['lost_share']*100", fmt: "{:.1f}", expect: "9.4"}}
+  - {id: F-47, slides: ["06"], label: "Extra cost of selling only at the derated rate", shown: "+1.03M AED", type: derived, source: "results/plan_summary.csv", key: "total_cost", formula: "10,133,900 - 9,107,180 = 1,026,720 AED (all lost margin)",
+     check: {expr: "(row('results/plan_summary.csv', config='mip_t99_d85_derated_caps')['total_cost'] - row('results/plan_summary.csv', config='mip_t99_d85')['total_cost'])/1e6", fmt: "{:.2f}", expect: "1.03"}}
+  - {id: F-48, slides: ["06"], label: "Turns away twice the customers", shown: "twice the customers", type: derived, source: "results/plan_summary.csv", key: "lost_share", formula: "9.36% / 4.82% = 1.94, rounded to 'twice' (README: 'twice as many')",
+     check: {expr: "1.9 <= row('results/plan_summary.csv', config='mip_t99_d85_derated_caps')['lost_share'] / row('results/plan_summary.csv', config='mip_t99_d85')['lost_share'] <= 2.1", fmt: bool}}
+  # ---- slide 07
+  - {id: F-49, slides: ["07"], label: "Sheet rows on screen equal the exported roster (6 hubs + 3 animated hubs)", shown: "rows A1, A2, A4, B1, B2, C1", type: derived, source: "demo:assets/sale_day_roster.json -> value.html SHEET block", key: "own_riders, gig_total, peak_riders, max_on_duty, busiest_hour, busiest_forecast, busiest_slots, otd", formula: "-",
+     check: {expr: "sheet_rows_match()", fmt: bool}}
+  - {id: F-50, slides: ["07"], label: "The exported roster reproduces make run: own riders, agency blocks, demand, accepted, on time and lost equal results/hub_day.csv for all 12 hubs", shown: "the whole sheet", type: derived, source: "tools/export_roster.py vs results/hub_day.csv (config mip_t99_d85, 2025-11-28)", key: "per hub", formula: "-",
+     check: {expr: "roster_matches_results()", fmt: bool}}
+  - {id: F-51, slides: ["07"], label: "Own 8-hour shifts, sale day, all hubs", shown: "787 own shifts", type: direct, source: "results/hub_day.csv", key: "sum(own_riders), mip_t99_d85, sale_day", formula: "-",
+     check: {expr: "R('results/hub_day.csv').query(\"config=='mip_t99_d85' and segment=='sale_day'\")['own_riders'].sum()", fmt: "{:d}", expect: "787"}}
+  - {id: F-52, slides: ["07"], label: "Agency 4-hour blocks, sale day, all hubs", shown: "3,348 agency blocks", type: direct, source: "results/hub_day.csv", key: "sum(gig_blocks)", formula: "-",
+     check: {expr: "R('results/hub_day.csv').query(\"config=='mip_t99_d85' and segment=='sale_day'\")['gig_blocks'].sum()", fmt: "{:,d}", expect: "3,348"}}
+  - {id: F-53, slides: ["07"], label: "Rider cost, sale day", shown: "AED 561,160", type: direct, source: "results/hub_day.csv", key: "sum(rider_cost)", formula: "-",
+     check: {expr: "R('results/hub_day.csv').query(\"config=='mip_t99_d85' and segment=='sale_day'\")['rider_cost'].sum()", fmt: "{:,d}", expect: "561,160"}}
+  - {id: F-54, slides: ["07"], label: "On time, accepted orders, sale day", shown: "96.0% on time", type: derived, source: "results/hub_day.csv", key: "sum(on_time)/sum(accepted)", formula: "43,782 / 45,628 = 95.954% -> 96.0%", note: "The README quotes 95.9% for the sale day; correct rounding of 95.954% is 96.0%.",
+     check: {expr: "(lambda d: d['on_time'].sum()/d['accepted'].sum()*100)(R('results/hub_day.csv').query(\"config=='mip_t99_d85' and segment=='sale_day'\"))", fmt: "{:.1f}", expect: "96.0"}}
+  - {id: F-55, slides: ["07"], label: "Sale day date", shown: "FRI 28 NOV 2025", type: direct, source: "results/hub_day.csv", key: "segment=sale_day date", formula: "last Friday of November (config.mega_sale_day)",
+     check: {expr: "R('results/hub_day.csv').query(\"segment=='sale_day'\")['date'].unique().tolist() == ['2025-11-28']", fmt: bool}}
+  - {id: F-56, slides: ["07"], label: "At every hub's busiest hour, slots sold are fewer than orders due", shown: "at the busiest hour, slots sold < orders due", type: derived, source: "demo:assets/sale_day_roster.json", key: "busiest_slots < busiest_forecast for all 12 hubs", formula: "-",
+     check: {expr: "all(h['busiest_slots'] < h['busiest_forecast'] for h in J('demo:assets/sale_day_roster.json')['hubs'])", fmt: bool}}
+  - {id: F-57, slides: ["07"], label: "Hub B2 on the sale day (the worst hub)", shown: "77.7%", type: direct, source: "results/hub_day.csv", key: "config=mip_t99_d85, date=2025-11-28, hub=B2", formula: "on_time / accepted",
+     check: {expr: "(lambda r: r['on_time']/r['accepted']*100)(row('results/hub_day.csv', config='mip_t99_d85', date='2025-11-28', hub='B2'))", fmt: "{:.1f}", expect: "77.7"}}
+  # ---- slide 08
+  - {id: F-58, slides: ["08"], label: "Rider cost vs the rule of thumb", shown: "−17.6%", type: derived, source: "results/plan_summary.csv", key: "rider_cost", formula: "8,015,150 / 9,731,060 - 1",
+     check: {expr: "(row('results/plan_summary.csv', config='mip_t99_d85')['rider_cost']/row('results/plan_summary.csv', config='rule_of_thumb')['rider_cost']-1)*100", fmt: "{:.1f}", expect: "-17.6"}}
+  - {id: F-59, slides: ["08"], label: "Rider cost, rule of thumb -> MIP", shown: "9.73M → 8.02M AED", type: direct, source: "results/plan_summary.csv", key: "rider_cost", formula: "/1e6, 2 dp",
+     check: {expr: "'{:.2f} {:.2f}'.format(row('results/plan_summary.csv', config='rule_of_thumb')['rider_cost']/1e6, row('results/plan_summary.csv', config='mip_t99_d85')['rider_cost']/1e6)", fmt: "{}", expect: "9.73 8.02"}}
+  - {id: F-60, slides: ["08"], label: "Accepted orders on time (counts up from the rule of thumb's 76.9%)", shown: "98.9% · rule of thumb 76.9%", type: direct, source: "results/plan_summary.csv", key: "replay_otd", formula: "see F-36, F-38", manual: "Same values as F-36 and F-38 (checked there)."}
+  - {id: F-61, slides: ["08"], label: "Total cost incl. lost margin vs the rule of thumb", shown: "−6.4%", type: derived, source: "results/plan_summary.csv", key: "total_cost", formula: "9,107,180 / 9,731,060 - 1",
+     check: {expr: "(row('results/plan_summary.csv', config='mip_t99_d85')['total_cost']/row('results/plan_summary.csv', config='rule_of_thumb')['total_cost']-1)*100", fmt: "{:.1f}", expect: "-6.4"}}
+  - {id: F-62, slides: ["08"], label: "Cost per delivered order", shown: "14.57 → 12.74 AED/order", type: direct, source: "results/plan_summary.csv", key: "cost_per_delivered", formula: "2 dp",
+     check: {expr: "'{:.2f} {:.2f}'.format(row('results/plan_summary.csv', config='rule_of_thumb')['cost_per_delivered'], row('results/plan_summary.csv', config='mip_t99_d85')['cost_per_delivered'])", fmt: "{}", expect: "14.57 12.74"}}
+  - {id: F-63, slides: ["08"], label: "Event model daily WAPE, Eid al-Fitr (eve to fourth day)", shown: "8.5%", type: direct, source: "results/forecast_accuracy.csv", key: "segment=eid, forecaster=model, daily_wape", formula: "x 100",
+     check: {expr: "row('results/forecast_accuracy.csv', segment='eid', forecaster='model')['daily_wape']*100", fmt: "{:.1f}", expect: "8.5"}}
+  - {id: F-64, slides: ["08"], label: "Naive (last year x growth) daily WAPE, Eid", shown: "naive forecast 43.9%", type: direct, source: "results/forecast_accuracy.csv", key: "segment=eid, forecaster=naive, daily_wape", formula: "x 100",
+     check: {expr: "row('results/forecast_accuracy.csv', segment='eid', forecaster='naive')['daily_wape']*100", fmt: "{:.1f}", expect: "43.9"}}
+  - {id: F-65, slides: ["08"], label: "Hub-days per configuration", shown: "612 hub-days", type: direct, source: "results/plan_summary.csv", key: "hub_days", formula: "12 hubs x 51 days",
+     check: {expr: "row('results/plan_summary.csv', config='mip_t99_d85')['hub_days']", fmt: "{:d}", expect: "612"}}
+  - {id: F-66, slides: ["08"], label: "Customers who tried to order (same for every configuration)", shown: "754,577 customers", type: direct, source: "results/hub_day.csv", key: "sum(demand) per config", formula: "-",
+     check: {expr: "(lambda s: s.nunique() == 1 and int(s.iloc[0]))(R('results/hub_day.csv').groupby('config')['demand'].sum())", fmt: "{:,d}", expect: "754,577"}}
+  # ---- slide 09
+  - {id: F-67, slides: ["09"], label: "Naive daily WAPE, sale day", shown: "8.6%", type: direct, source: "results/forecast_accuracy.csv", key: "segment=sale_day, forecaster=naive", formula: "x 100",
+     check: {expr: "row('results/forecast_accuracy.csv', segment='sale_day', forecaster='naive')['daily_wape']*100", fmt: "{:.1f}", expect: "8.6"}}
+  - {id: F-68, slides: ["09"], label: "Naive bias, sale day", shown: "bias −7.2%", type: direct, source: "results/forecast_accuracy.csv", key: "segment=sale_day, forecaster=naive, bias", formula: "x 100",
+     check: {expr: "row('results/forecast_accuracy.csv', segment='sale_day', forecaster='naive')['bias']*100", fmt: "{:.1f}", expect: "-7.2"}}
+  - {id: F-69, slides: ["09"], label: "Event model daily WAPE, sale day", shown: "11.6%", type: direct, source: "results/forecast_accuracy.csv", key: "segment=sale_day, forecaster=model", formula: "x 100",
+     check: {expr: "row('results/forecast_accuracy.csv', segment='sale_day', forecaster='model')['daily_wape']*100", fmt: "{:.1f}", expect: "11.6"}}
+  - {id: F-70, slides: ["09"], label: "Event model bias, sale day", shown: "bias −11.6%", type: direct, source: "results/forecast_accuracy.csv", key: "segment=sale_day, forecaster=model, bias", formula: "x 100",
+     check: {expr: "row('results/forecast_accuracy.csv', segment='sale_day', forecaster='model')['bias']*100", fmt: "{:.1f}", expect: "-11.6"}}
+  - {id: F-71, slides: ["09"], label: "Event model daily WAPE, rest of sale week", shown: "7.5%", type: direct, source: "results/forecast_accuracy.csv", key: "segment=sale_week, forecaster=model", formula: "x 100",
+     check: {expr: "row('results/forecast_accuracy.csv', segment='sale_week', forecaster='model')['daily_wape']*100", fmt: "{:.1f}", expect: "7.5"}}
+  - {id: F-72, slides: ["09"], label: "Hubs below 99% on time on the sale day (chosen plan)", shown: "6 of 12 hubs miss 99%", type: derived, source: "results/hub_day.csv", key: "on_time/accepted < 0.99, mip_t99_d85, sale_day", formula: "count",
+     check: {expr: "int((lambda d: (d['on_time']/d['accepted'] < 0.99).sum())(R('results/hub_day.csv').query(\"config=='mip_t99_d85' and segment=='sale_day'\")))", fmt: "{:d}", expect: "6"}}
+  # ---- slide 10
+  - {id: F-73, slides: ["10"], label: "Stack chips and licence", shown: "PuLP + CBC · scikit-learn · DuckDB · Python · MIT", type: direct, source: "pyproject.toml", key: "dependencies, license", formula: "-",
+     check: {expr: "grep('pyproject.toml', r'\"pulp') and grep('pyproject.toml', r'\"scikit-learn') and grep('pyproject.toml', r'\"duckdb') and grep('pyproject.toml', r'MIT')", fmt: bool}}
+  - {id: F-74, slides: ["10"], label: "End-card backdrop bars = network forecast orders per operating hour on the sale day", shown: "faded bars", type: derived, source: "demo:assets/sale_day_roster.json -> s07-end.html SALE block", key: "sum of hub forecasts per hour", formula: "-",
+     check: {expr: "sale_bars_match()", fmt: bool}}
+
+slides:
+  - id: "01"
+    title: "The industry"
+    image: slides/slide-01.jpg
+    time: "0.0-7.2 s"
+    composition: "compositions/s01-context.html"
+    text:
+      - "01 · THE INDUSTRY"
+      - "Every peak season, someone books the riders weeks ahead."
+      - "WHO LIVES WITH THIS · Grocery & quick commerce · Food delivery platforms · Courier & last-mile fleets"
+      - "01 The peaks move every year — Festivals and sales land on new dates"
+      - "02 Riders are booked from a forecast — Weeks before the real orders arrive"
+      - "03 Busy hours queue up even when the numbers add up — Orders wait and the promise slips"
+      - "04 \"On time\" can be bought by closing slots — The customer turned away is not counted"
+      - "THIS PROJECT tackles all four, end to end · forecast → plan → replay → measure"
+    assumptions: [A-13]
+    illustrative: ["The whole slide is context; no repo figures."]
+    change: "Edit the chips (#ctx-c1..3) and cards (#ctx-k1..4) in compositions/s01-context.html."
+  - id: "02"
+    title: "This project"
+    image: slides/slide-02.jpg
+    time: "6.8-11.6 s"
+    composition: "compositions/s02-hook.html"
+    text:
+      - "02 · THIS PROJECT"
+      - "12 hubs, 3 cities. Sale day: 4.2× the orders. Riders booked weeks before."
+      - "delivered within 60 minutes · busiest hour 3.9× a normal peak · Ramadan moves ~11 days a year"
+    assumptions: [A-01, A-03, A-11, A-12]
+    illustrative: ["Rings in the background are decoration."]
+    change: "Headline spans #hook-l1..l3 and chips #hook-f1..f3 in compositions/s02-hook.html; multiples are recomputed by the sale_multiple helper."
+  - id: "03"
+    title: "How it works (white chapter, slide A)"
+    image: slides/slide-03.jpg
+    time: "11.3-19.3 s"
+    composition: "compositions/explainer.html (CONFIG.blocks, CONFIG.groups, CONFIG.loop)"
+    text:
+      - "03 · HOW IT WORKS"
+      - "From orders to a roster"
+      - "ORDERS 3 years, hour by hour → [WEEKS AHEAD: CLEAN UP fill gaps, drop glitches → FORECAST which night of Ramadan? → PLAN riders + slots each hour] → [THE DAY ITSELF: REPLAY play every single order] → ROSTER OUT ✓ more on time ✓ lower rider cost ✓ lower total cost"
+      - "search for the cheapest roster (loop over PLAN)"
+    assumptions: [A-02, A-09]
+    illustrative: ["Icons and colours are a visual language, not data.", "'THE DAY ITSELF' = the replay plays each planned day against the true orders, after the fact."]
+    change: "Edit CONFIG in compositions/explainer.html; badge truth is F-09."
+  - id: "04"
+    title: "The key idea (white chapter, slide B)"
+    image: slides/slide-04.jpg
+    time: "19.3-26.3 s"
+    composition: "compositions/explainer.html (#ex-b ...)"
+    text:
+      - "04 · THE KEY IDEA"
+      - "Plan for the queue, not the average"
+      - "Exactly enough riders still run late — orders bunch up and trips vary, so a queue forms"
+      - "So the plan counts each rider at 85% — a margin measured in the replay, not guessed"
+      - "And it is judged on everyone who tried to order — closing slots cannot make it look better"
+      - "ONE BUSY HOUR AT ONE HUB: SIZED EXACTLY (4 riders) → QUEUE GROWS; WITH A 15% MARGIN (5 riders) → QUEUE CLEARS. Same orders, same hour: the margin keeps it on time."
+      - "Replay, perfect forecast: 95.0% on time with riders counted at full speed, 99.6% at 85%."
+    assumptions: [A-02, A-03, A-05]
+    illustrative: ["The queue demo (4 vs 5 riders, 8 orders) is schematic; it mirrors README 'Where the plan-to-replay gap comes from', not a specific hub-hour."]
+    change: "Markup under #ex-b in compositions/explainer.html; the footnote figures are F-12 and F-13."
+  - id: "05"
+    title: "Architecture"
+    image: slides/slide-05.jpg
+    time: "26.0-41.0 s"
+    composition: "compositions/s03-architecture.html"
+    text:
+      - "05 · ARCHITECTURE"
+      - "Plan each city-day with a MIP; judge it order by order."
+      - "Legend: data · forecast · optimizer · evaluation · human step · in-process · file · baseline"
+      - "PLAN · WEEKS AHEAD · AS OF THE FORECAST CUTOFF: generate.py · seed 11 → hourly_orders.csv.gz (11.2M orders), hubs.csv (12 hubs · space cap), cities.csv (3 own-rider pools)"
+      - "transforms.py DuckDB clean (1,340 gaps filled · 309 spikes fixed) · calendar.py Event features (Ramadan day · Eid · days to the sale)"
+      - "forecast.py Event model (HistGB · Poisson · × hourly shape) · seasonal_naive() Last year × growth (baseline)"
+      - "decision ? (13 configs) → plan.py · plan_city_day() MIP per city-day (PuLP + CBC · integer riders · 8h shifts · 4h agency blocks · + orders accepted per hour · CBC stop 200 / 200 nodes) | rule_of_thumb() (baseline)"
+      - "service.py fluid rate × derate 0.85 ← space · rider pool · trip time"
+      - "BUDGETS & FACTS: configurations 13 · city-day plans 1,989 · CBC gap 0.5% · CPU backstop 20 s · full run 179 s · hubs open 07–03 · promise 60 min"
+      - "JUDGE · ORDER BY ORDER · ON TRUE DEMAND: true orders (the planner never sees them) → replay.py Order replay (random minutes · FIFO · lognormal trips · no-shows · on time = within 60 min · ✓ tested vs Erlang C) ← roster + slot caps"
+      - "7,956 hub-days → experiment.py Summarise (on time: accepted · on time: everyone · turned away · AED) → results/ (plan_summary.csv, tradeoff.csv, hub_day.csv) and → ADR-0001 Pick the derate (from the replay, not assumed) → derate 0.85 (feedback)"
+      - "forecast.py Forecast error (forecast vs true · WAPE · bias) → forecast_accuracy.csv"
+      - "CRITICAL PATH · orders → clean → forecast → MIP → replay → results"
+    assumptions: [A-01, A-02, A-06, A-07, A-08]
+    illustrative: ["Packets moving along the wires are decoration in execution order, not measured timings.", "The CBC node counter animates to its real limit (200); the pace is not a measured solve.", "'Pick the derate' is the decision recorded in ADR-0001 (one derate for the run), not an interactive step in the code."]
+    change: "Node boxes (#n-*), cylinders (CYL) and the wires object W in compositions/s03-architecture.html."
+  - id: "06a"
+    title: "The system running: 51 replayed days"
+    image: slides/slide-06a.jpg
+    time: "40.6-48.2 s"
+    composition: "compositions/s04-routes.html (SERIES block from tools/export_series.py)"
+    text:
+      - "06 · THE SYSTEM RUNNING"
+      - "51 peak days, 12 hubs, three plans, replayed order by order."
+      - "On time, accepted orders, per day · legend: rule of thumb · MIP, full speed · MIP, riders at 85% · target 99%"
+      - "Panels: 24 Feb – 3 Apr 2025 (Ramadan, Eid bands) | 20 Nov – 1 Dec (sale band); y axis 70%–100%"
+      - "sale day: rule of thumb 2.2% (arrow: the line leaves the axis)"
+      - "ON TIME · ALL 51 DAYS: rule of thumb 76.9% · MIP, full speed 96.4% · MIP, riders at 85% 98.9%"
+    assumptions: [A-02, A-05, A-09]
+    illustrative: ["Values below 70% are drawn at the axis floor; the arrow and label give the real sale-day value."]
+    change: "Regenerate assets/run_series.json with tools/export_series.py and inject it; styling in compositions/s04-routes.html."
+  - id: "06b"
+    title: "The system running: the metric that disagrees"
+    image: slides/slide-06b.jpg
+    time: "48.2-55.2 s"
+    composition: "compositions/s04-routes.html (#routes-dg)"
+    text:
+      - "THE METRIC THAT DISAGREES · RIDERS AT 85% · ALL 51 DAYS"
+      - "columns: ON TIME · ACCEPTED | ON TIME · EVERYONE | TURNED AWAY"
+      - "Sell at full rider speed (the chosen plan): 98.9% · 94.1% · 4.8%"
+      - "Sell only at the 85% rate (ablation, kept in results): 99.9% · 90.6% · 9.4%"
+      - "Selling fewer slots buys 99.9% on time, but turns away twice the customers and costs +1.03M AED."
+    assumptions: [A-04, A-10]
+    illustrative: ["Bar lengths: on-time bars on a 0-100% scale, turned-away bars on a 0-10% scale."]
+    change: "NAMES and the dg rows in compositions/s04-routes.html; values come from SERIES.disagree."
+  - id: "07"
+    title: "End-user value (white)"
+    image: slides/slide-07.jpg
+    time: "54.9-67.9 s"
+    composition: "compositions/value.html (SHEET block from tools/export_roster.py)"
+    text:
+      - "07 · END-USER VALUE"
+      - "What the ops lead gets"
+      - "SALE-DAY ROSTER · FRI 28 NOV 2025 · MIP · RIDERS AT 85%"
+      - "HUB · OWN 8H · AGENCY 4H · PEAK / SPACE · BUSIEST · ORDERS DUE · SLOTS SOLD · ON TIME"
+      - "A1 111 452 163/163 21:00 434 360 100.0% · A2 52 450 134/134 21:00 382 321 99.1% · A4 153 172 115/115 21:00 319 265 99.6% · B1 112 242 112/112 20:00 333 280 100.0% · B2 0 399 97/97 20:00 296 253 77.7% · C1 35 200 69/69 20:00 272 197 99.7%"
+      - "+ 6 more hubs · at the busiest hour, slots sold < orders due"
+      - "12 hubs · 787 own shifts + 3,348 agency blocks · AED 561,160 · 96.0% on time"
+      - "Scene: OPS LEAD · SALE DAY, clock 07:00 → 02:00; hub cards A1, B2, C1 with riders on duty / space, hourly bars, badges 100.0% / 77.7% / 99.7% on time"
+      - "Riders per shift and orders per hour, set weeks ahead. Fewer riders, more orders on time."
+    assumptions: [A-02, A-04, A-06, A-10]
+    illustrative: ["Scooter icons: 10 per hub = hub space; lit icons = riders on duty / space, rounded to tenths.", "Hourly bars: outline = forecast orders due, fill = orders the hour's slots can take (min of slots and forecast).", "The roster hand-off animation is decoration.", "'Fewer riders' in the caption refers to rider cost vs the rule of thumb over the 51 days (F-58), not to this one day."]
+    change: "Re-run tools/export_roster.py, then tools/inject_sheet.py --marker SHEET (pick --rows / --animate); layout in compositions/value.html."
+  - id: "08"
+    title: "Results"
+    image: slides/slide-08.jpg
+    time: "67.6-76.4 s"
+    composition: "compositions/s05-results.html"
+    text:
+      - "08 · RESULTS · 51 REPLAYED PEAK DAYS"
+      - "Lower rider cost, more orders on time, Eid called right."
+      - "OPTIMIZER −17.6% rider cost vs rule of thumb · 9.73M → 8.02M AED"
+      - "REPLAY 98.9% accepted orders on time · rule of thumb 76.9%"
+      - "OPTIMIZER −6.4% total cost, lost orders included · 14.57 → 12.74 AED/order"
+      - "FORECAST 8.5% daily forecast error, Eid · naive forecast 43.9%"
+      - "12 hubs · 612 hub-days · 754,577 customers · every number from one order replay"
+    assumptions: [A-02, A-04, A-08, A-09]
+    illustrative: ["Mini bars show the ratio of the two values in each card's footer."]
+    change: "The stats array and footers in compositions/s05-results.html."
+  - id: "09"
+    title: "What didn't win"
+    image: slides/slide-09.jpg
+    time: "76.0-82.2 s"
+    composition: "compositions/s06-twist.html"
+    text:
+      - "09 · WHAT DIDN'T WIN"
+      - "On the sale day, last year's number beats the model."
+      - "Daily forecast error (WAPE) across the 12 hubs · lower is better"
+      - "Last year × growth (sale day · bias −7.2%) 8.6% · Event model (sale day · bias −11.6%) 11.6% · Event model (rest of sale week) 7.5%"
+      - "Why: two past sales cannot teach a third, bigger one; 6 of 12 hubs miss 99% that day. Next: plan the sale over intensity scenarios."
+    assumptions: [A-08]
+    illustrative: ["Bar lengths are proportional to WAPE (67 px per point)."]
+    change: "Rows and verdict in compositions/s06-twist.html."
+  - id: "10"
+    title: "End card"
+    image: slides/slide-10.jpg
+    time: "81.8-86.2 s"
+    composition: "compositions/s07-end.html"
+    text:
+      - "10 · OPEN SOURCE · MIT · RUNS ON A LAPTOP"
+      - "peak-capacity-planner"
+      - "github.com/kavya2693/peak-capacity-planner"
+      - "PuLP + CBC · scikit-learn · DuckDB · Python"
+      - "$ make run   # 12 hubs, 1,989 city-day plans, ~3 min"
+    assumptions: [A-12]
+    illustrative: ["The faded bars are the sale day's network forecast per operating hour (F-74), used as a backdrop."]
+    change: "Text in compositions/s07-end.html; backdrop via inject_sheet.py --marker SALE."
+
+caveats:
+  - "Sale-day on time: slide 07 shows 96.0% (43,782 / 45,628 = 95.954%, correctly rounded); README 'The sale day itself' says 95.9%."
+  - "Full-run time: the logged make run took 179 s (results/run_log.txt); README 'Running it' says 'about 2 min on a quiet machine'. Slides use 179 s and ~3 min."
+  - "The slide 02 multiples (4.2×, 3.9×) depend on the definition of an ordinary weekday (A-11); they match the README's figures."
+  - "'Rule of thumb 2.2%' on the sale day is a backlog that never clears in a replay with no cancellations; the README asks to read it as collapsed, not as a precise figure."
+  - "All data is synthetic (A-01). Trip times are a per-hub mean with lognormal noise, not a road network; riders do not batch orders."
+  - "The derate is one number for every hub and hour (README 'Known limitations'), and it was chosen from the replay that also scores the plans, so the chosen plan's on-time share is not an out-of-sample estimate."
+  - "CBC can stop on its CPU backstop on a busy machine; README reports reruns differing by under 0.01% of cost in three configurations (A-07). The slide 07 re-run reproduced every sale-day hub exactly (F-50)."
+  - "Slide 01 statements are general industry knowledge (A-13)."
+  - "Hub names (A1...C3) and cities (A, B, C) are the repo's generic labels; no real places or people."
+
+stills:
+  master: renders/peak-capacity-planner-master.mp4   # relative to demo_dir
+  width: 1600
+  times: {"01": 6.4, "02": 11.1, "03": 18.9, "04": 25.5, "05": 38.6, "06a": 47.5, "06b": 54.2, "07": 66.8, "08": 75.8, "09": 81.6, "10": 86.0}
+
+# Extra check helpers (Python), available to check expressions.
+helpers: |
+  import re as _re
+  def sale_multiple(kind):
+      """Sale day (2025-11-28) vs Mon-Fri 2025-09-01..2025-11-14, all hubs pooled (A-11)."""
+      h = R('data/hourly_orders.csv.gz')
+      d = pd.to_datetime(h['date'])
+      base = h[(d >= '2025-09-01') & (d <= '2025-11-14') & (d.dt.weekday < 5)]
+      sale = h[h['date'] == '2025-11-28']
+      if kind == 'day':
+          return sale['orders'].sum() / base.groupby('date')['orders'].sum().mean()
+      return sale.groupby('op_hour')['orders'].sum().max() / base.groupby(['date', 'op_hour'])['orders'].sum().groupby('op_hour').mean().max()
+  def ramadan_shift():
+      import datetime as _dt
+      txt = T('src/peak_capacity/config.py')
+      block = txt[txt.index('RAMADAN:'):txt.index('EID_ADHA')]
+      starts = [_dt.date(*map(int, m)) for m in _re.findall(r'\d{4}: \(date\((\d+), (\d+), (\d+)\)', block)]
+      gaps = [(a.replace(year=b.year) - b).days for a, b in zip(starts, starts[1:])]
+      return sum(gaps) / len(gaps)
+  def _block(path, name):
+      html = T(path)
+      m = _re.search(r"const " + name + r" = (.*?); /\* " + name + r":END", html, _re.S)
+      return json.loads(m.group(1))
+  def series_matches():
+      s = _block('demo:compositions/s04-routes.html', 'SERIES')
+      if s != J('demo:assets/run_series.json'):
+          return False
+      hd = R('results/hub_day.csv')
+      g = hd.groupby(['config', 'date'])[['on_time', 'accepted']].sum()
+      plans = {'rule': 'rule_of_thumb', 'fluid': 'mip_t99_d100', 'derate': 'mip_t99_d85'}
+      for r in s['daily']:
+          for k, c in plans.items():
+              v = g.loc[(c, r['date'])]
+              if abs(v['on_time'] / v['accepted'] - r[k]) > 6e-5:
+                  return False
+      return len(s['daily']) == 51
+  def sheet_rows_match():
+      sheet = _block('demo:compositions/value.html', 'SHEET')
+      src = {h['hub']: h for h in J('demo:assets/sale_day_roster.json')['hubs']}
+      keys = ('own_riders', 'gig_total', 'peak_riders', 'max_on_duty', 'busiest_hour', 'busiest_forecast', 'busiest_slots', 'otd')
+      for r in sheet['rows']:
+          if any(r[k] != src[r['hub']][k] for k in keys):
+              return False
+      for s in sheet['scene']:
+          if s['riders_on_duty'] != src[s['hub']]['riders_on_duty'] or s['forecast'] != src[s['hub']]['forecast']:
+              return False
+      return [r['hub'] for r in sheet['rows']] == ['A1', 'A2', 'A4', 'B1', 'B2', 'C1'] and [s['hub'] for s in sheet['scene']] == ['A1', 'B2', 'C1']
+  def roster_matches_results():
+      ex = {h['hub']: h for h in J('demo:assets/sale_day_roster.json')['hubs']}
+      hd = R('results/hub_day.csv').query("config=='mip_t99_d85' and date=='2025-11-28'")
+      if len(hd) != 12 or set(hd['hub']) != set(ex):
+          return False
+      pairs = (('own_riders', 'own_riders'), ('gig_blocks', 'gig_total'), ('peak_riders', 'peak_riders'), ('demand', 'demand'),
+               ('accepted', 'accepted'), ('on_time', 'on_time'), ('lost', 'lost'), ('rider_cost', 'rider_cost'))
+      return all(int(r[a]) == int(ex[r['hub']][b]) for _, r in hd.iterrows() for a, b in pairs)
+  def sale_bars_match():
+      bars = _block('demo:compositions/s07-end.html', 'SALE')
+      d = J('demo:assets/sale_day_roster.json')
+      want = [round(sum(h['forecast'][t] for h in d['hubs']), 1) for t in range(len(d['hours']))]
+      return bars == want
