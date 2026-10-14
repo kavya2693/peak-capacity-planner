@@ -163,7 +163,9 @@ hubs.csv, cities.csv       flag closures (window medians per hub, hour, kind of 
 ```
 
 Stop conditions: CBC stops at a 0.5% optimality gap or 200 branch-and-bound nodes per city-day
-(20 CPU seconds as a backstop), so a rerun returns the same plan. 1-19% of city-days per
+(20 CPU seconds as a backstop). The node limit makes reruns repeatable; the CPU backstop
+occasionally fires on a busy machine, and two full runs differed in three configurations by
+under 0.01% of cost, below every figure quoted here. 1-19% of city-days per
 configuration had a plan that stopped on the node limit rather than proving the gap (`solver_status` in
 `results/hub_day.csv`). In the replay a rider never starts a trip after the shift ends, the
 storefront stops taking orders 15 minutes before the 03:00 close, and an order nobody could
