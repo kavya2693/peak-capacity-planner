@@ -15,7 +15,7 @@ Everything needed to rebuild the silent walkthrough (`docs/demo/demo.mp4`) and t
 | `compositions/s03-architecture.html` | Slide 05, the architecture diagram (boxes, cylinders, the `W` wires object, packets) |
 | `compositions/s04-routes.html` | Slide 06, 51 replayed days and the metric that disagrees (data injected as `SERIES`) |
 | `compositions/value.html` | Slide 07, the sale-day roster and ops-lead scene (data injected as `SHEET`) |
-| `compositions/s05-results.html`, `s06-twist.html`, `s07-end.html` | Slides 08-10, results, what didn't win, end card (backdrop injected as `SALE`) |
+| `compositions/s05-results.html`, `s06-twist.html`, `s07-end.html` | Slides 08-10, results, lesson and fix, end card (backdrop injected as `SALE`) |
 | `assets/run_series.json` | Daily replayed on-time per plan and the slot-cap ablation, exported by `tools/export_series.py` |
 | `assets/sale_day_roster.json` | Sale day 2025-11-28, all 12 hubs, re-planned and replayed by `tools/export_roster.py` |
 | `audit/facts.yaml` | Every figure (F-xx), assumption (A-xx), slide text and check expression used by the report |
@@ -54,7 +54,7 @@ python3 docs/demo/source/tools/inject_sheet.py docs/demo/source/assets/sale_day_
 python3 docs/demo/source/tools/inject_sheet.py docs/demo/source/assets/sale_day_roster.json \
   docs/demo/source/compositions/s07-end.html --marker SALE
 
-# 3. render (86.2 s, 1920x1080, 30 fps, silent) and compress
+# 3. render (89.8 s, 1920x1080, 30 fps, silent) and compress
 cd docs/demo/source
 npx --yes hyperframes@0.8.156 check
 npx --yes hyperframes@0.8.156 render -f 30 -q looks -o renders/peak-capacity-planner-master.mp4

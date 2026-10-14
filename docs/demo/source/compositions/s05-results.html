@@ -12,9 +12,9 @@
           background: var(--panel); padding: 44px 34px 36px; display: flex; flex-direction: column; overflow: hidden;
         }
         #results-root .card .bar { position: absolute; left: 0; top: 0; width: 100%; height: 6px; }
-        #results-root .card .layer { font-family: var(--mono); font-size: 20px; letter-spacing: 0.12em; text-transform: uppercase; }
+        #results-root .card .layer { font-family: var(--mono); font-size: 22px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; }
         #results-root .card .big {
-          margin-top: 18px; font-family: var(--mono); font-variant-numeric: tabular-nums; font-size: 104px;
+          margin-top: 18px; font-family: var(--mono); font-variant-numeric: tabular-nums; font-size: 96px;
           font-weight: 700; letter-spacing: -0.05em; line-height: 1; white-space: nowrap;
         }
         #results-root .card .lab { margin-top: 22px; font-size: 32px; font-weight: 700; line-height: 1.2; color: var(--ink); }
@@ -30,12 +30,13 @@
         #results-root .mod .big, #results-root .mod .layer { color: var(--c-model); }
         #results-root .ev .bar, #results-root .ev .mini-fill { background: var(--c-eval); }
         #results-root .ev .big, #results-root .ev .layer { color: var(--c-eval); }
-        #results-root .footnote { position: absolute; left: 120px; top: 840px; font-family: var(--mono); font-size: 24px; color: var(--ink-mute); }
+        #results-root .footnote { position: absolute; left: 120px; top: 840px; font-size: 26px; font-weight: 500; color: var(--ink-soft); }
       </style>
       <div id="results-root" data-composition-id="results" data-width="1920" data-height="1080">
         <div class="scene" id="results-in">
           <div class="eyebrow" data-layout-allow-overlap id="results-eyebrow">08 · Results · 51 replayed peak days</div>
           <div class="scene-title" data-layout-allow-overlap id="results-title">Lower rider cost, more orders on time, Eid called right.</div>
+          <div class="scene-sub" id="results-sub">The chosen plan vs last season's rule of thumb, 51 peak days. Costs and errors: lower is better.</div>
           <div class="cards">
             <div class="card opt" id="results-c1"><div class="bar"></div><div class="layer">optimizer</div>
               <div class="big"><span id="results-v1">0.0</span>%</div><div class="lab">rider cost vs rule of thumb</div>
@@ -47,10 +48,10 @@
               <div class="big"><span id="results-v3">0.0</span>%</div><div class="lab">total cost, lost orders included</div>
               <div class="mini"><div class="mini-fill" id="results-m3"></div></div><div class="foot">14.57 → 12.74 AED/order</div></div>
             <div class="card mod" id="results-c4"><div class="bar"></div><div class="layer">forecast</div>
-              <div class="big"><span id="results-v4">43.9</span>%</div><div class="lab">daily forecast error, Eid</div>
+              <div class="big"><span id="results-v4">43.9</span>%</div><div class="lab">daily forecast error on Eid, model</div>
               <div class="mini"><div class="mini-fill" id="results-m4"></div></div><div class="foot">naive forecast 43.9%</div></div>
           </div>
-          <div class="footnote" id="results-foot">12 hubs · 612 hub-days · 754,577 customers · every number from one order replay</div>
+          <div class="footnote" id="results-foot">12 hubs · 612 hub-days · 754,577 customers · every number from one order-by-order replay</div>
         </div>
       </div>
       <script>
@@ -60,6 +61,7 @@
           tl.fromTo("#results-in", { opacity: 0 }, { opacity: 1, duration: 0.4 }, 0);
           tl.fromTo("#results-eyebrow", { opacity: 0, x: -24 }, { opacity: 1, x: 0, duration: 0.5, ease: "power2.out" }, 0.1);
           tl.fromTo("#results-title", { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.7, ease: "power3.out" }, 0.2);
+          tl.fromTo("#results-sub", { opacity: 0 }, { opacity: 1, duration: 0.5 }, 0.5);
           const stats = [
             { v: "results-v1", m: "#results-m1", from: 0, to: -17.6, d: 1, r: 8.02 / 9.73 },
             { v: "results-v2", m: "#results-m2", from: 76.9, to: 98.9, d: 1, r: 0.989, r0: 0.769 },
@@ -75,7 +77,7 @@
             tl.fromTo(s.m, { scaleX: s.r0 || 1 }, { scaleX: s.r, duration: 1.6, ease: "power3.out" }, at + 0.3);
           });
           tl.fromTo("#results-foot", { opacity: 0 }, { opacity: 1, duration: 0.5 }, 2.8);
-          tl.to("#results-in", { opacity: 0, duration: 0.4, ease: "power2.in" }, D - 0.4);
+          tl.to("#results-in", { opacity: 0, duration: 0.4, ease: "power2.in" }, D - 0.8); // dip: fully out before the next scene starts
           window.__timelines["results"] = tl;
         })();
       </script>

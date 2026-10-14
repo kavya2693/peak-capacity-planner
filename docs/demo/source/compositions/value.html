@@ -8,8 +8,10 @@
            person using it (right). Data comes from tools/export_roster.py, inlined by tools/inject_sheet.py. */
         #value-root {
           position: absolute; inset: 0;
-          --w-bg: #ffffff; --w-ink: #111827; --w-soft: #4b5563; --w-mute: #6b7280; --w-line: #d1d5db; --w-faint: #f3f4f6;
+          --w-bg: #ffffff; --w-ink: #111827; --w-soft: #4b5563; --w-mute: #4b5563; --w-line: #d1d5db; --w-faint: #f3f4f6;
           --w-data: #d97706; --w-model: #6d3cf0; --w-tools: #1f8fa8; --w-risk: #dc2b4a; --w-opt: #0f9f6e;
+          /* text versions of the layer colours: every one is >= 4.5:1 on white (the fills above are for tiles and bars only) */
+          --w-data-t: #b45309; --w-model-t: #6d3cf0; --w-tools-t: #0e7490; --w-risk-t: #be123c; --w-opt-t: #047857;
           color: var(--w-ink); font-family: Inter, "Helvetica Neue", sans-serif;
         }
         #value-root .page { position: absolute; inset: 0; background: var(--w-bg); }
@@ -27,7 +29,7 @@
 
         /* sheet */
         #value-root .sheet {
-          position: absolute; left: 120px; top: 280px; width: 1050px; height: 640px; border: 3px solid var(--w-line);
+          position: absolute; left: 120px; top: 300px; width: 1050px; height: 620px; border: 3px solid var(--w-line);
           border-radius: 24px; background: #fff; box-shadow: 0 18px 40px rgba(17, 24, 39, 0.08); overflow: hidden;
         }
         #value-root .sheet-head {
@@ -36,10 +38,10 @@
         }
         #value-root .sheet-head span:last-child { color: #c4b5fd; }
         #value-root .row {
-          position: relative; display: flex; align-items: center; height: 64px; padding: 0 26px;
+          position: relative; display: flex; align-items: center; height: 60px; padding: 0 26px;
           font-family: "JetBrains Mono", monospace; font-size: 22px; color: var(--w-ink); border-bottom: 2px solid var(--w-faint);
         }
-        #value-root .row.hdr { height: 58px; font-size: 18px; font-weight: 700; letter-spacing: 0.06em; color: var(--w-mute); background: #fafafa; line-height: 1.15; }
+        #value-root .row.hdr { height: 58px; font-size: 22px; font-weight: 700; letter-spacing: 0; color: var(--w-mute); background: #fafafa; line-height: 1.15; }
         #value-root .row .tint { position: absolute; inset: 0; opacity: 0; }
         #value-root .c { position: relative; white-space: nowrap; }
         #value-root .c1 { width: 104px; display: flex; align-items: center; gap: 10px; font-weight: 700; }
@@ -52,10 +54,10 @@
         #value-root .c7 { width: 124px; text-align: right; padding-right: 22px; font-weight: 700; }
         #value-root .c8 { width: 120px; text-align: right; font-weight: 700; }
         #value-root .row.hdr .c { white-space: normal; }
-        #value-root .good { color: var(--w-opt); }
-        #value-root .warn { color: var(--w-data); }
-        #value-root .miss { color: var(--w-risk); }
-        #value-root .more { padding: 14px 30px 0; font-family: "JetBrains Mono", monospace; font-size: 20px; color: var(--w-mute); }
+        #value-root .good { color: var(--w-opt-t); }
+        #value-root .warn { color: var(--w-data-t); }
+        #value-root .miss { color: var(--w-risk-t); }
+        #value-root .more { padding: 14px 30px 0; font-family: "JetBrains Mono", monospace; font-size: 22px; color: var(--w-mute); }
         #value-root .totals {
           position: absolute; left: 0; bottom: 0; width: 100%; height: 66px; display: flex; align-items: center; gap: 14px; padding: 0 30px;
           background: #ecfdf5; border-top: 2px solid #a7f3d0; font-size: 22px; font-weight: 700; color: #065f46; white-space: nowrap;
@@ -64,10 +66,10 @@
         #value-root .totals svg { position: absolute; left: 6px; top: 6px; width: 16px; height: 16px; }
 
         /* scene */
-        #value-root .scene-lab { position: absolute; font-family: "JetBrains Mono", monospace; font-size: 20px; font-weight: 700; letter-spacing: 0.14em; color: var(--w-mute); white-space: nowrap; }
-        #value-root .desk { position: absolute; left: 1220px; top: 312px; width: 600px; height: 128px; border-radius: 20px; background: var(--w-faint); }
+        #value-root .scene-lab { position: absolute; font-family: "JetBrains Mono", monospace; font-size: 22px; font-weight: 700; letter-spacing: 0.14em; color: var(--w-mute); white-space: nowrap; }
+        #value-root .desk { position: absolute; left: 1220px; top: 328px; width: 600px; height: 128px; border-radius: 20px; background: var(--w-faint); }
         #value-root .clock {
-          position: absolute; left: 1610px; top: 344px; width: 180px; height: 64px; border-radius: 14px; background: var(--w-ink); color: #fff;
+          position: absolute; left: 1610px; top: 360px; width: 180px; height: 64px; border-radius: 14px; background: var(--w-ink); color: #fff;
           display: flex; align-items: center; justify-content: center; font-family: "JetBrains Mono", monospace; font-size: 34px; font-weight: 700;
         }
         #value-root .hubcard {
@@ -77,7 +79,7 @@
           position: absolute; left: 20px; top: 14px; font-family: "JetBrains Mono", monospace; font-size: 22px; font-weight: 700; color: #fff;
           padding: 2px 12px; border-radius: 8px;
         }
-        #value-root .hubcard .lab { position: absolute; left: 100px; top: 18px; font-family: "JetBrains Mono", monospace; font-size: 20px; color: var(--w-mute); white-space: nowrap; }
+        #value-root .hubcard .lab { position: absolute; left: 100px; top: 17px; font-family: "JetBrains Mono", monospace; font-size: 22px; color: var(--w-mute); white-space: nowrap; }
         #value-root .hubcard .cnt { position: absolute; right: 22px; top: 14px; font-family: "JetBrains Mono", monospace; font-size: 24px; font-weight: 700; color: var(--w-ink); }
         #value-root .hubcard .ok {
           position: absolute; right: 18px; bottom: 16px; display: flex; align-items: center; gap: 8px; padding: 4px 12px; border-radius: 999px;
@@ -88,6 +90,8 @@
           position: absolute; left: 120px; top: 944px; width: 1700px; font-size: 30px; font-weight: 700; color: var(--w-ink); white-space: nowrap;
         }
         #value-root .caption span { color: var(--w-model); }
+        #value-root .subt { position: absolute; left: 120px; top: 248px; width: 1680px; font-size: 26px; font-weight: 500; color: var(--w-soft); }
+        #value-root .subt b { color: var(--w-ink); }
       </style>
 
       <div id="value-root" data-composition-id="value" data-width="1920" data-height="1080">
@@ -95,9 +99,10 @@
           <div class="kick" id="va-kick">07 · END-USER VALUE</div>
           <div class="ttl" id="va-ttl">What the <em>ops lead</em> gets</div>
           <div class="uline" id="va-ul"></div>
+          <div class="subt" id="va-sub">One row per hub: riders booked weeks ahead for the sale day. <b>ON TIME</b> = delivered within 60 min; higher is better.</div>
 
           <div class="sheet" id="va-sheet">
-            <div class="sheet-head" id="va-head"><span id="va-head-l">SALE-DAY ROSTER</span><span>MIP · RIDERS AT 85%</span></div>
+            <div class="sheet-head" id="va-head"><span id="va-head-l">SALE-DAY ROSTER</span><span>PLAN · 85% MARGIN</span></div>
             <div class="row hdr" id="va-hdr">
               <div class="c c1">HUB</div><div class="c c2">OWN 8H</div><div class="c c3">AGENCY 4H</div><div class="c c4">PEAK / SPACE</div>
               <div class="c c5">BUSIEST</div><div class="c c6">ORDERS DUE</div><div class="c c7">SLOTS SOLD</div><div class="c c8">ON TIME</div>
@@ -107,7 +112,7 @@
             <div class="totals" id="va-totals"></div>
           </div>
 
-          <div class="scene-lab" id="va-lab-desk" style="left: 1220px; top: 280px">OPS LEAD · SALE DAY</div>
+          <div class="scene-lab" id="va-lab-desk" style="left: 1220px; top: 296px">OPS LEAD · SALE DAY</div>
           <div class="desk" id="va-desk"></div>
           <div class="clock" id="va-clock">07:00</div>
           <div id="va-hubs"></div>
@@ -123,9 +128,9 @@
           /* SHEET:BEGIN */ const SHEET = {"day":"2025-11-28","hours":["07:00","08:00","09:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00","18:00","19:00","20:00","21:00","22:00","23:00","00:00","01:00","02:00"],"totals":{"own_riders":787,"gig_total":3348,"rider_cost":561160.0,"demand":49134,"accepted":45628,"lost":3506,"on_time":43782,"otd":0.9595,"lost_share":0.0714},"n_hubs":12,"rows":[{"hub":"A1","city":"A","own_riders":111,"gig_total":452,"peak_riders":163,"max_on_duty":163,"busiest_hour":"21:00","busiest_forecast":433.6,"busiest_slots":360,"otd":1.0,"animate":0},{"hub":"A2","city":"A","own_riders":52,"gig_total":450,"peak_riders":134,"max_on_duty":134,"busiest_hour":"21:00","busiest_forecast":382.3,"busiest_slots":321,"otd":0.9907,"animate":-1},{"hub":"A4","city":"A","own_riders":153,"gig_total":172,"peak_riders":115,"max_on_duty":115,"busiest_hour":"21:00","busiest_forecast":319.0,"busiest_slots":265,"otd":0.9962,"animate":-1},{"hub":"B1","city":"B","own_riders":112,"gig_total":242,"peak_riders":112,"max_on_duty":112,"busiest_hour":"20:00","busiest_forecast":332.7,"busiest_slots":280,"otd":1.0,"animate":-1},{"hub":"B2","city":"B","own_riders":0,"gig_total":399,"peak_riders":97,"max_on_duty":97,"busiest_hour":"20:00","busiest_forecast":295.9,"busiest_slots":253,"otd":0.7773,"animate":1},{"hub":"C1","city":"C","own_riders":35,"gig_total":200,"peak_riders":69,"max_on_duty":69,"busiest_hour":"20:00","busiest_forecast":272.4,"busiest_slots":197,"otd":0.9971,"animate":2}],"scene":[{"hub":"A1","riders_on_duty":[61,61,148,148,150,150,156,156,138,138,156,156,162,162,162,162,163,163,52,52],"max_on_duty":163,"forecast":[114.1,167.2,280.4,261.6,284.0,281.7,296.7,299.3,250.3,274.3,274.8,296.2,422.0,423.5,433.6,368.0,304.1,206.6,119.7,46.3],"slot_cap":[135.6,135.6,328.9,328.9,333.3,333.3,346.7,346.7,306.7,306.7,346.7,346.7,360.0,360.0,360.0,360.0,362.2,362.2,115.6,115.6],"otd":1.0},{"hub":"B2","riders_on_duty":[39,39,90,90,95,95,90,90,80,80,97,97,97,97,97,97,88,88,25,25],"max_on_duty":97,"forecast":[86.2,164.7,157.4,190.0,210.5,213.1,220.4,184.0,172.8,176.3,215.3,244.8,272.4,295.9,285.3,220.9,176.3,126.2,63.4,40.3],"slot_cap":[101.7,101.7,234.8,234.8,247.8,247.8,234.8,234.8,208.7,208.7,253.0,253.0,253.0,253.0,253.0,253.0,229.6,229.6,65.2,65.2],"otd":0.7773},{"hub":"C1","riders_on_duty":[24,24,58,58,60,60,58,58,51,51,69,69,69,69,69,69,66,66,16,16],"max_on_duty":69,"forecast":[56.7,97.7,122.6,139.4,144.1,150.2,145.2,133.7,133.0,127.1,136.8,178.4,206.4,272.4,239.9,166.0,153.5,107.1,50.8,30.1],"slot_cap":[68.6,69.3,165.7,165.7,171.4,171.4,165.7,165.7,145.7,145.7,197.1,197.1,197.1,197.1,197.1,197.1,188.6,188.6,45.7,45.7],"otd":0.9971}]}; /* SHEET:END */
           const CONFIG = {
             duration: 13.0,
-            colors: ["#6d3cf0", "#d97706", "#1f8fa8"], // one per animated hub
-            cardTop: [462, 618, 774],
-            person: { x: 1272, y: 376 },
+            colors: ["#6d3cf0", "#b45309", "#0e7490"], // dark enough for white hub labels (>= 4.5:1) // one per animated hub
+            cardTop: [478, 634, 790],
+            person: { x: 1272, y: 392 },
             bays: 10, // scooter icons per hub = hub space; each lit icon = 1/10 of the space in use
             clock: [3.2, 9.2], // the 20 operating hours play out in this window
           };
@@ -191,7 +196,7 @@
             hubsEl.insertAdjacentHTML("beforeend",
               '<div class="hubcard" id="va-h' + i + '" style="top:' + top + 'px"><div class="nm" style="background:' + col + '">' + h.hub + "</div>" +
               '<div class="lab">riders on duty / space</div><div class="cnt" id="va-cnt' + i + '">0 / ' + h.max_on_duty + "</div>" +
-              '<div class="ok" id="va-ok' + i + '" style="background:' + (h.otd >= 0.99 ? "#0f9f6e" : h.otd >= 0.9 ? "#d97706" : "#dc2b4a") + '">' + pct(h.otd) + " on time</div></div>");
+              '<div class="ok" id="va-ok' + i + '" style="background:' + (h.otd >= 0.99 ? "#047857" : h.otd >= 0.9 ? "#b45309" : "#be123c") + '">' + pct(h.otd) + " on time</div></div>");
             // scooter bays
             const bays = [];
             for (let b = 0; b < CONFIG.bays; b++) {
@@ -236,6 +241,7 @@
           tl.fromTo("#va-kick", { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 0.5);
           tl.fromTo("#va-ttl", { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.6, ease: "power3.out" }, 0.55);
           tl.fromTo("#va-ul", { scaleX: 0 }, { scaleX: 1, duration: 0.5, ease: "power3.out" }, 0.9);
+          tl.fromTo("#va-sub", { opacity: 0 }, { opacity: 1, duration: 0.5 }, 1.0);
           tl.fromTo("#va-sheet", { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.6, ease: "power3.out" }, 0.8);
           SHEET.rows.forEach((_, i) => tl.fromTo("#va-r" + i, { opacity: 0, x: -16 }, { opacity: 1, x: 0, duration: 0.35, ease: "power2.out" }, 1.2 + i * 0.22));
           tl.fromTo("#va-more", { opacity: 0 }, { opacity: 1, duration: 0.4 }, 1.2 + SHEET.rows.length * 0.22);
@@ -259,6 +265,8 @@
           tl.fromTo(clock, { h: 0 }, { h: SHEET.hours.length - 0.01, duration: CONFIG.clock[1] - CONFIG.clock[0], ease: "none", onUpdate: () => setHour(clock.h) }, CONFIG.clock[0]);
           sceneState.forEach((s, i) => tl.fromTo("#va-ok" + i, { opacity: 0, scale: 0.85 }, { opacity: 1, scale: 1, duration: 0.4, ease: "power3.out" }, CONFIG.clock[1] + 0.1 + i * 0.15));
           tl.fromTo("#va-caption", { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.6, ease: "power3.out" }, 9.7);
+          // all text fades out before the wipe, so no two slides' text is ever on screen together
+          tl.to(["#va-kick", "#va-ttl", "#va-ul", "#va-sub", "#va-sheet", "#va-lab-desk", "#va-desk", "#va-clock", "#va-hubs", "#va-svg", "#va-caption"], { opacity: 0, duration: 0.35, ease: "power2.in" }, D - 1.05);
           // wipe out (white -> dark), revealing the next dark scene underneath
           tl.to("#va-page", { clipPath: "inset(0px 0px 0px 100%)", duration: 0.7, ease: "power3.inOut" }, D - 0.7);
           tl.fromTo("#va-edge", { x: 0, opacity: 0 }, { x: 1920, opacity: 1, duration: 0.7, ease: "power3.inOut", immediateRender: false }, D - 0.7);

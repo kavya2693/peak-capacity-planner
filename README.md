@@ -8,9 +8,9 @@ How many delivery riders each grocery hub needs, on which shifts, and how many o
 each hour, through Ramadan and a November mega-sale that brings four times a normal day's orders.
 The plan comes from a mixed-integer program and is then checked order by order in a replay.
 
-[![86-second silent walkthrough: the peak-staffing problem, how the plan is made, the architecture, the replay and the results](docs/demo/demo.gif)](https://kavya2693.github.io/work-demos/peak-capacity-planner.mp4)
+[![90-second silent walkthrough: the peak-staffing problem, how the plan is made, the architecture, the replay, the results, and the lesson with its fix](docs/demo/demo.gif)](https://kavya2693.github.io/work-demos/peak-capacity-planner.mp4)
 
-*86-second silent walkthrough. [Play the full video](https://kavya2693.github.io/work-demos/peak-capacity-planner.mp4) · [download the MP4, 5.8 MB](docs/demo/demo.mp4).*
+*90-second silent walkthrough. [Play the full video](https://kavya2693.github.io/work-demos/peak-capacity-planner.mp4) · [download the MP4, 6.4 MB](docs/demo/demo.mp4).*
 
 📄 **Audit report:** every figure and assumption in the video, traced to its source — [PDF](docs/demo/AUDIT_REPORT.pdf) · [Word](docs/demo/AUDIT_REPORT.docx) · [Markdown](docs/demo/AUDIT_REPORT.md)
 

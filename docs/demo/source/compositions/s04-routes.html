@@ -5,9 +5,8 @@
     <template>
       <style>
         #routes-root { position: absolute; inset: 0; }
-        #routes-root .sub { position: absolute; left: 120px; top: 196px; font-family: var(--mono); font-size: 22px; color: var(--ink-soft); }
-        #routes-root .legend {
-          position: absolute; right: 120px; top: 196px; display: flex; gap: 26px; font-family: var(--mono); font-size: 22px; color: var(--ink-soft);
+                #routes-root .legend {
+          position: absolute; left: 190px; top: 884px; display: flex; gap: 30px; font-family: var(--mono); font-size: 22px; color: var(--ink-soft);
         }
         #routes-root .legend span { display: flex; align-items: center; gap: 10px; }
         #routes-root .legend i { display: block; width: 34px; height: 5px; border-radius: 3px; }
@@ -16,8 +15,8 @@
           position: absolute; left: 1500px; top: 290px; width: 300px; padding: 24px 26px; border-radius: 14px;
           border: 2px solid rgba(63, 216, 168, 0.6); background: rgba(12, 22, 32, 0.92);
         }
-        #routes-root .counter .h { font-family: var(--mono); font-size: 20px; letter-spacing: 0.1em; color: var(--ink-mute); line-height: 1.35; }
-        #routes-root .counter .who { margin-top: 18px; font-family: var(--mono); font-size: 20px; color: var(--ink-soft); }
+        #routes-root .counter .h { font-family: var(--mono); font-size: 22px; font-weight: 700; letter-spacing: 0.08em; color: var(--ink-soft); line-height: 1.35; }
+        #routes-root .counter .who { margin-top: 18px; font-family: var(--mono); font-size: 22px; color: var(--ink-soft); }
         #routes-root .counter .v { font-family: var(--mono); font-variant-numeric: tabular-nums; font-size: 52px; font-weight: 700; letter-spacing: -0.03em; }
         #routes-root .counter .v.rule { color: var(--c-eval); }
         #routes-root .counter .v.fluid { color: var(--c-model); }
@@ -29,15 +28,15 @@
           box-shadow: 0 30px 120px rgba(0, 0, 0, 0.6); padding: 40px 56px;
         }
         #routes-root .dg-h { font-family: var(--mono); font-size: 24px; letter-spacing: 0.1em; color: var(--c-risk); }
-        #routes-root .dg-cols { display: flex; margin-top: 26px; padding-left: 470px; font-family: var(--mono); font-size: 20px; letter-spacing: 0.08em; color: var(--ink-mute); }
+        #routes-root .dg-cols { display: flex; margin-top: 26px; padding-left: 470px; font-family: var(--mono); font-size: 22px; font-weight: 700; letter-spacing: 0.06em; color: var(--ink-soft); }
         #routes-root .dg-cols div { width: 310px; }
         #routes-root .dg-row { display: flex; align-items: center; height: 150px; border-bottom: 2px solid var(--line); }
         #routes-root .dg-row:last-of-type { border-bottom: none; }
         #routes-root .dg-who { width: 470px; font-size: 32px; font-weight: 700; color: var(--ink); line-height: 1.2; }
-        #routes-root .dg-who small { display: block; margin-top: 6px; font-family: var(--mono); font-size: 20px; font-weight: 400; color: var(--ink-mute); }
+        #routes-root .dg-who small { display: block; margin-top: 6px; font-size: 24px; font-weight: 500; color: var(--ink-soft); }
         #routes-root .dg-cell { width: 310px; }
         #routes-root .dg-v { font-family: var(--mono); font-variant-numeric: tabular-nums; font-size: 56px; font-weight: 700; letter-spacing: -0.03em; color: var(--ink-soft); }
-        #routes-root .dg-bar { position: relative; margin-top: 8px; width: 260px; height: 10px; border-radius: 5px; background: rgba(178, 191, 204, 0.12); }
+        #routes-root .dg-bar { position: relative; margin-top: 8px; width: 260px; height: 10px; border-radius: 5px; background: rgba(200, 211, 222, 0.12); }
         #routes-root .dg-fill { position: absolute; left: 0; top: 0; width: 260px; height: 10px; border-radius: 5px; background: var(--ink-mute); transform-origin: left center; }
         #routes-root .win .dg-v { color: var(--c-opt); }
         #routes-root .win .dg-fill { background: var(--c-opt); }
@@ -50,11 +49,11 @@
         <div class="scene" id="routes-in">
           <div class="eyebrow" data-layout-allow-overlap id="routes-eyebrow">06 · The system running</div>
           <div class="scene-title" data-layout-allow-overlap id="routes-title">51 peak days, 12 hubs, three plans, replayed order by order.</div>
-          <div class="sub" id="routes-sub">On time, accepted orders, per day</div>
+          <div class="scene-sub" id="routes-sub">Each line = one plan: share of accepted orders delivered within 60 minutes, per day. Higher is better.</div>
           <div class="legend" id="routes-legend">
             <span><i style="background: var(--c-eval)"></i>rule of thumb</span>
-            <span><i style="background: var(--c-model)"></i>MIP, full speed</span>
-            <span><i style="background: var(--c-opt)"></i>MIP, riders at 85%</span>
+            <span><i style="background: var(--c-model)"></i>plan, full speed</span>
+            <span><i style="background: var(--c-opt)"></i>plan, 85% margin</span>
             <span><svg width="34" height="6"><path d="M0 3h34" stroke="#3fd8a8" stroke-width="2" stroke-dasharray="6 6"/></svg>target 99%</span>
           </div>
           <div id="routes-chartwrap" data-layout-allow-occlusion>
@@ -65,12 +64,14 @@
             <div class="h">ON TIME · ALL 51 DAYS</div>
             <div class="who">rule of thumb</div>
             <div class="v rule" id="routes-c-rule">0.0%</div>
-            <div class="who">MIP, full speed</div>
+            <div class="who">plan, full speed</div>
             <div class="v fluid" id="routes-c-fluid">0.0%</div>
-            <div class="who">MIP, riders at 85%</div>
+            <div class="who">plan, 85% margin</div>
             <div class="v derate" id="routes-c-derate">0.0%</div>
           </div>
 
+          <div class="scene-title" data-layout-allow-overlap id="routes-title-b">"On time" can be bought by refusing customers.</div>
+          <div class="scene-sub" id="routes-sub-b">"Everyone" also counts customers who found the hour sold out. On time: higher is better; turned away: lower.</div>
           <div class="disagree" id="routes-dg">
             <div class="dg-h">THE METRIC THAT DISAGREES · RIDERS AT 85% · ALL 51 DAYS</div>
             <div class="dg-cols"><div>ON TIME · ACCEPTED</div><div>ON TIME · EVERYONE</div><div>TURNED AWAY</div></div>
@@ -86,7 +87,7 @@
           const tl = gsap.timeline({ paused: true });
           const D = 14.6;
           const NS = "http://www.w3.org/2000/svg";
-          const COL = { rule: "#f2c46d", fluid: "#b9a2ff", derate: "#3fd8a8", grid: "rgba(178,191,204,0.14)", mute: "#8494a6" };
+          const COL = { rule: "#f2c46d", fluid: "#b9a2ff", derate: "#3fd8a8", grid: "rgba(178,191,204,0.14)", mute: "#9fb0c2" };
           const svg = document.getElementById("routes-svg");
           const el = (tag, at, parent) => {
             const n = document.createElementNS(NS, tag);
@@ -94,7 +95,7 @@
             (parent || svg).appendChild(n);
             return n;
           };
-          const txt = (x, y, s, at) => { const t = el("text", Object.assign({ x, y, "font-family": "JetBrains Mono, monospace", "font-size": 20, fill: COL.mute }, at || {})); t.textContent = s; return t; };
+          const txt = (x, y, s, at) => { const t = el("text", Object.assign({ x, y, "font-family": "JetBrains Mono, monospace", "font-size": 22, fill: COL.mute }, at || {})); t.textContent = s; return t; };
 
           // ---------- geometry: two panels (Ramadan window, sale fortnight), y = 70% .. 100%
           const days = SERIES.daily;
@@ -173,15 +174,17 @@
           });
           // phase 2: the metric that disagrees
           const P2 = 7.6;
-          tl.to(["#routes-chartwrap", "#routes-counter"], { opacity: 0.12, duration: 0.6, ease: "power2.inOut" }, P2);
-          tl.to(["#routes-title", "#routes-sub", "#routes-legend"], { opacity: 0, duration: 0.3 }, P2);
-          tl.fromTo("#routes-dg", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.7, ease: "power3.out" }, P2 + 0.2);
+          // phase A fades out completely before phase B comes in (no dimmed text left behind the panel)
+          tl.to(["#routes-chartwrap", "#routes-counter", "#routes-title", "#routes-sub", "#routes-legend"], { opacity: 0, duration: 0.5, ease: "power2.in" }, P2);
+          tl.fromTo("#routes-title-b", { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.7, ease: "power3.out" }, P2 + 0.55);
+          tl.fromTo("#routes-sub-b", { opacity: 0 }, { opacity: 1, duration: 0.5 }, P2 + 0.7);
+          tl.fromTo("#routes-dg", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.7, ease: "power3.out" }, P2 + 0.6);
           [0, 1].forEach((i) => {
-            tl.fromTo("#routes-dg-r" + i, { opacity: 0, x: -20 }, { opacity: 1, x: 0, duration: 0.5, ease: "power2.out" }, P2 + 0.8 + i * 0.9);
-            [0, 1, 2].forEach((j) => tl.fromTo("#routes-f" + i + j, { scaleX: 0 }, { scaleX: 1, duration: 0.8, ease: "power3.out" }, P2 + 1.0 + i * 0.9 + j * 0.1));
+            tl.fromTo("#routes-dg-r" + i, { opacity: 0, x: -20 }, { opacity: 1, x: 0, duration: 0.5, ease: "power2.out" }, P2 + 1.2 + i * 0.9);
+            [0, 1, 2].forEach((j) => tl.fromTo("#routes-f" + i + j, { scaleX: 0 }, { scaleX: 1, duration: 0.8, ease: "power3.out" }, P2 + 1.4 + i * 0.9 + j * 0.1));
           });
-          tl.fromTo("#routes-dg-foot", { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, P2 + 3.0);
-          tl.to("#routes-in", { opacity: 0, duration: 0.4, ease: "power2.in" }, D - 0.4);
+          tl.fromTo("#routes-dg-foot", { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, P2 + 3.4);
+          tl.to("#routes-in", { opacity: 0, duration: 0.4, ease: "power2.in" }, D - 0.8); // dip: fully out before the next scene starts
           window.__timelines["routes"] = tl;
         })();
       </script>

@@ -8,20 +8,20 @@
         #arch-root .diagram { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; transform-origin: 960px 620px; }
         #arch-root svg.wires { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; overflow: visible; }
         #arch-root .lane {
-          position: absolute; border: 2px dashed rgba(132, 148, 166, 0.28); border-radius: 18px; background: rgba(15, 26, 38, 0.35);
+          position: absolute; border: 2px dashed rgba(159, 176, 194, 0.35); border-radius: 18px; background: rgba(15, 26, 38, 0.35);
         }
         #arch-root .lane .pill {
           position: absolute; left: 22px; top: -16px; padding: 2px 14px; border-radius: 8px; background: var(--bg);
-          font-family: var(--mono); font-size: 20px; font-weight: 700; letter-spacing: 0.12em; color: var(--ink-soft); white-space: nowrap;
+          font-family: var(--mono); font-size: 22px; font-weight: 700; letter-spacing: 0.1em; color: var(--ink-soft); white-space: nowrap;
         }
         #arch-root .node {
           position: absolute; display: flex; flex-direction: column; justify-content: center; gap: 5px;
           padding: 0 20px; border: 2px solid var(--line); border-radius: 12px; background: var(--panel);
         }
         #arch-root .node .t { font-size: 28px; font-weight: 700; letter-spacing: -0.01em; color: var(--ink); white-space: nowrap; }
-        #arch-root .node .s { font-family: var(--mono); font-size: 20px; color: var(--ink-soft); white-space: nowrap; }
+        #arch-root .node .s { font-size: 22px; font-weight: 500; color: var(--ink-soft); white-space: nowrap; }
         #arch-root .node .f {
-          position: absolute; right: 12px; top: -15px; font-family: var(--mono); font-size: 20px; padding: 0 9px;
+          position: absolute; right: 12px; top: -17px; font-family: var(--mono); font-size: 22px; padding: 0 9px;
           border-radius: 6px; background: var(--bg); border: 2px solid var(--line); white-space: nowrap;
         }
         #arch-root .L-data { border-color: rgba(127, 168, 255, 0.6); }
@@ -37,25 +37,27 @@
         #arch-root .hero .t { font-size: 34px; }
         #arch-root .hero .f { left: 14px; right: auto; }
         #arch-root .hero .s.accent { color: var(--c-opt); }
-        #arch-root .budget-row { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 20px; color: var(--ink-soft); margin-top: 4px; }
+        #arch-root .budget-row { display: flex; justify-content: space-between; font-size: 22px; font-weight: 500; color: var(--ink-soft); margin-top: 4px; }
+        #arch-root .budget-row b { font-family: var(--mono); }
         #arch-root .budget-row b { color: var(--c-opt); font-weight: 700; }
         #arch-root .budget { position: relative; width: 100%; height: 10px; border-radius: 5px; background: rgba(63, 216, 168, 0.15); overflow: hidden; }
         #arch-root .budget-fill { position: absolute; left: 0; top: 0; width: 100%; height: 10px; background: var(--c-opt); transform-origin: left center; }
-        #arch-root .fallback { border: 2px dashed rgba(132, 148, 166, 0.75); background: rgba(15, 26, 38, 0.6); }
+        #arch-root .fallback { border: 2px dashed rgba(159, 176, 194, 0.8); background: rgba(15, 26, 38, 0.6); }
         #arch-root .fallback .t { font-size: 24px; color: var(--ink-soft); }
-        #arch-root .fallback .f { color: var(--ink-mute); }
+        #arch-root .fallback .f { color: var(--ink-soft); }
         #arch-root .human { border: 2px solid rgba(238, 242, 246, 0.55); background: #172433; flex-direction: row; align-items: center; gap: 16px; }
         #arch-root .human .f { color: var(--ink); }
         #arch-root .human .col { display: flex; flex-direction: column; gap: 5px; }
         #arch-root .human svg { flex: 0 0 auto; }
         #arch-root .cyl-lab { position: absolute; display: flex; flex-direction: column; align-items: center; gap: 2px; text-align: center; }
-        #arch-root .cyl-lab .n { font-family: var(--mono); font-size: 20px; font-weight: 700; color: var(--ink); white-space: nowrap; }
-        #arch-root .cyl-lab .s { font-family: var(--mono); font-size: 20px; color: var(--ink-soft); white-space: nowrap; }
-        #arch-root .group-label { position: absolute; font-family: var(--mono); font-size: 20px; color: var(--c-data); white-space: nowrap; }
+        #arch-root .cyl-lab .n { font-size: 22px; font-weight: 700; color: var(--ink); white-space: nowrap; }
+        #arch-root .cyl-lab .s { font-size: 22px; font-weight: 500; color: var(--ink-soft); white-space: nowrap; }
+        #arch-root .group-label { position: absolute; font-family: var(--mono); font-size: 22px; color: var(--c-data); white-space: nowrap; }
         #arch-root .legend {
-          position: absolute; right: 120px; top: 186px; display: flex; gap: 20px; align-items: center;
-          font-family: var(--mono); font-size: 20px; color: var(--ink-soft); white-space: nowrap;
+          position: absolute; right: 120px; top: 180px; display: flex; flex-direction: column; align-items: flex-end; gap: 4px;
+          font-family: var(--mono); font-size: 22px; color: var(--ink-soft); white-space: nowrap;
         }
+        #arch-root .legend .lrow { display: flex; gap: 20px; align-items: center; }
         #arch-root .legend span { display: flex; align-items: center; gap: 8px; }
         #arch-root .legend i { display: block; width: 14px; height: 14px; border-radius: 4px; }
         #arch-root .legend svg { display: block; }
@@ -65,43 +67,44 @@
           font-family: var(--mono); font-size: 22px; font-weight: 700; color: var(--ink); white-space: nowrap;
         }
         #arch-root .crit b { color: var(--c-opt); }
-        #arch-root .wl { position: absolute; font-family: var(--mono); font-size: 20px; white-space: nowrap; color: var(--ink-soft); }
+        #arch-root .wl { position: absolute; font-family: var(--mono); font-size: 22px; white-space: nowrap; color: var(--ink-soft); }
         #arch-root .card {
-          position: absolute; border: 2px solid rgba(132, 148, 166, 0.45); border-radius: 12px; background: rgba(15, 26, 38, 0.85);
-          padding: 14px 20px; font-family: var(--mono); font-size: 20px; color: var(--ink-soft);
+          position: absolute; border: 2px solid rgba(159, 176, 194, 0.5); border-radius: 12px; background: rgba(15, 26, 38, 0.85);
+          padding: 14px 20px; font-size: 22px; font-weight: 500; color: var(--ink-soft);
         }
-        #arch-root .card .h { font-size: 20px; font-weight: 700; letter-spacing: 0.08em; color: var(--ink-mute); margin-bottom: 4px; }
+        #arch-root .card .h { font-family: var(--mono); font-size: 22px; font-weight: 700; letter-spacing: 0.08em; color: var(--ink-soft); margin-bottom: 4px; }
         #arch-root .card .r { display: flex; justify-content: space-between; line-height: 32px; white-space: nowrap; }
-        #arch-root .card .r b { color: var(--ink); font-weight: 700; }
-        #arch-root .file { position: absolute; font-family: var(--mono); font-size: 20px; color: var(--c-eval); white-space: nowrap; }
+        #arch-root .card .r b { font-family: var(--mono); color: var(--ink); font-weight: 700; }
+        #arch-root .file { position: absolute; font-family: var(--mono); font-size: 22px; color: var(--c-eval); white-space: nowrap; }
       </style>
 
       <div id="arch-root" data-composition-id="arch" data-width="1920" data-height="1080">
         <div class="scene" id="arch-in">
           <div class="eyebrow" data-layout-allow-overlap id="arch-eyebrow">05 · Architecture</div>
-          <div class="scene-title" data-layout-allow-overlap id="arch-title">Plan each city-day with a MIP; judge it order by order.</div>
+          <div class="scene-title" data-layout-allow-overlap id="arch-title">Plan each city-day with an optimizer; judge it order by order.</div>
+          <div class="scene-sub" id="arch-sub">Each box is a file in the repo. Top row plans, bottom row judges.</div>
           <div class="legend" id="arch-legend">
-            <span><i style="background: var(--c-data)"></i>data</span>
+            <div class="lrow"><span><i style="background: var(--c-data)"></i>data</span>
             <span><i style="background: var(--c-model)"></i>forecast</span>
             <span><i style="background: var(--c-opt)"></i>optimizer</span>
-            <span><i style="background: var(--c-eval)"></i>evaluation</span>
-            <span><i style="background: #eef2f6"></i>human step</span>
-            <span><svg width="38" height="8"><path d="M0 4h38" stroke="#b2bfcc" stroke-width="3"/></svg>in-process</span>
-            <span><svg width="38" height="8"><path d="M0 4h38" stroke="#b2bfcc" stroke-width="3" stroke-dasharray="9 6"/></svg>file</span>
-            <span><svg width="38" height="8"><path d="M0 4h38" stroke="#8494a6" stroke-width="3" stroke-dasharray="2 6" stroke-linecap="round"/></svg>baseline</span>
+            <span><i style="background: var(--c-eval)"></i>scoring</span>
+            <span><i style="background: #eef2f6"></i>person</span></div>
+            <div class="lrow"><span><svg width="38" height="8"><path d="M0 4h38" stroke="#c8d3de" stroke-width="3"/></svg>in memory</span>
+            <span><svg width="38" height="8"><path d="M0 4h38" stroke="#c8d3de" stroke-width="3" stroke-dasharray="9 6"/></svg>file</span>
+            <span><svg width="38" height="8"><path d="M0 4h38" stroke="#9fb0c2" stroke-width="3" stroke-dasharray="2 6" stroke-linecap="round"/></svg>baseline</span></div>
           </div>
-          <div class="crit" id="arch-crit"><b>CRITICAL PATH</b> · orders → clean → forecast → MIP → replay → results</div>
+          <div class="crit" id="arch-crit"><b>CRITICAL PATH</b> · clean → forecast → plan → replay</div>
 
           <div class="diagram" id="arch-diagram">
-            <div class="lane" id="arch-lane1" style="left: 100px; top: 236px; width: 1720px; height: 430px">
+            <div class="lane" id="arch-lane1" style="left: 100px; top: 252px; width: 1720px; height: 414px">
               <div class="pill">PLAN · WEEKS AHEAD · AS OF THE FORECAST CUTOFF</div></div>
             <div class="lane" id="arch-lane2" style="left: 100px; top: 722px; width: 1720px; height: 264px">
               <div class="pill" style="left: 330px">JUDGE · ORDER BY ORDER · ON TRUE DEMAND</div></div>
 
             <svg class="wires" viewBox="0 0 1920 1080" id="arch-svg"></svg>
 
-            <div class="group-label" id="arch-g1" style="left: 124px; top: 256px">generate.py · seed 11</div>
-            <div class="wl" id="wl-dec" style="left: 962px; top: 266px; color: var(--c-opt)">13 configs</div>
+            <div class="group-label" id="arch-g1" style="left: 112px; top: 582px">generate.py seed 11</div>
+            <div class="wl" id="wl-dec" style="left: 982px; top: 222px; color: var(--c-opt)">13 configs</div>
             <div id="arch-cyl-labels"></div>
 
             <!-- data / feature layer -->
@@ -112,7 +115,7 @@
 
             <!-- forecast layer -->
             <div class="node L-model" id="n-model" style="left: 700px; top: 280px; width: 250px; height: 130px">
-              <div class="f">forecast.py</div><div class="t">Event model</div><div class="s">HistGB · Poisson</div><div class="s">× hourly shape</div></div>
+              <div class="f">forecast.py</div><div class="t">Event model</div><div class="s">gradient boosting</div><div class="s">× hourly shape</div></div>
             <div class="node fallback" id="n-naive" style="left: 700px; top: 440px; width: 250px; height: 80px">
               <div class="f">seasonal_naive()</div><div class="t">Last year × growth</div></div>
             <div class="node fallback" id="n-rule" style="left: 700px; top: 552px; width: 250px; height: 70px">
@@ -121,22 +124,22 @@
             <!-- optimizer -->
             <div class="node L-opt hero" id="n-mip" style="left: 1090px; top: 270px; width: 380px; height: 230px">
               <div class="f">plan.py · plan_city_day()</div>
-              <div class="t">MIP per city-day</div>
-              <div class="s">PuLP + CBC · integer riders</div>
+              <div class="t">Plan per city-day</div>
+              <div class="s">MIP solver · PuLP + CBC</div>
               <div class="s">8h shifts · 4h agency blocks</div>
               <div class="s accent">+ orders accepted per hour</div>
-              <div class="budget-row"><span>CBC stop</span><b id="arch-budget-num">0 / 200 nodes</b></div>
+              <div class="budget-row"><span>search limit</span><b id="arch-budget-num">0 / 200 nodes</b></div>
               <div class="budget"><div class="budget-fill" id="arch-budget-fill"></div></div>
             </div>
             <div class="node L-opt" id="n-rate" style="left: 1090px; top: 518px; width: 380px; height: 58px">
-              <div class="f">service.py</div><div class="t" style="font-size: 24px">fluid rate × derate 0.85</div></div>
+              <div class="f">service.py</div><div class="t" style="font-size: 24px">rider speed × 0.85 margin</div></div>
 
             <div class="card" id="n-nfr" style="left: 1510px; top: 270px; width: 290px; height: 300px">
               <div class="h">BUDGETS &amp; FACTS</div>
               <div class="r" id="nfr-1"><span>configurations</span><b>13</b></div>
               <div class="r" id="nfr-2"><span>city-day plans</span><b>1,989</b></div>
-              <div class="r" id="nfr-3"><span>CBC gap</span><b>0.5%</b></div>
-              <div class="r" id="nfr-4"><span>CPU backstop</span><b>20 s</b></div>
+              <div class="r" id="nfr-3"><span>solver gap</span><b>0.5%</b></div>
+              <div class="r" id="nfr-4"><span>time backstop</span><b>20 s</b></div>
               <div class="r" id="nfr-5"><span>full run</span><b>179 s</b></div>
               <div class="r" id="nfr-6"><span>hubs open</span><b>07–03</b></div>
               <div class="r" id="nfr-7"><span>promise</span><b>60 min</b></div>
@@ -151,17 +154,17 @@
             <div class="node human" id="n-human" style="left: 1090px; top: 760px; width: 300px; height: 140px">
               <div class="f">ADR-0001</div>
               <svg width="46" height="64" viewBox="0 0 46 64"><circle cx="23" cy="14" r="11" fill="#eef2f6"/><path d="M3 62v-14a20 18 0 0 1 40 0v14z" fill="#eef2f6"/></svg>
-              <div class="col"><div class="t" style="font-size: 26px">Pick the derate</div><div class="s">from the replay,</div><div class="s">not assumed</div></div>
+              <div class="col"><div class="t" style="font-size: 26px">Pick the margin</div><div class="s">from the replay,</div><div class="s">not assumed</div></div>
             </div>
             <div class="node L-eval" id="n-replay" style="left: 1440px; top: 760px; width: 360px; height: 170px">
-              <div class="f">replay.py</div><div class="t">Order replay</div><div class="s">random minutes · FIFO</div><div class="s">lognormal trips · no-shows</div>
-              <div class="s">on time = within 60 min</div><div class="s ok">✓ tested vs Erlang C</div></div>
+              <div class="f">replay.py</div><div class="t">Order replay</div><div class="s">random arrival minutes</div><div class="s">lognormal trips · no-shows</div>
+              <div class="s">on time = within 60 min</div><div class="s ok">✓ checked vs queue maths</div></div>
 
             <!-- wire labels: what flows -->
             <div class="wl" id="wl-truth" style="left: 420px; top: 671px; color: var(--c-data)">true orders · the planner never sees them</div>
             <div class="wl" id="wl-hubs" style="left: 404px; top: 620px; color: var(--c-data)">space · rider pool · trip time</div>
             <div class="wl" id="wl-roster" style="left: 1500px; top: 628px; color: var(--c-opt)">roster + slot caps</div>
-            <div class="wl" id="wl-fb" style="left: 1252px; top: 590px; color: #eef2f6">derate 0.85</div>
+            <div class="wl" id="wl-fb" style="left: 1252px; top: 590px; color: #eef2f6">margin 0.85</div>
             <div class="wl" id="wl-hd" style="left: 1110px; top: 920px; color: var(--c-eval)">7,956 hub-days</div>
           </div>
         </div>
@@ -172,7 +175,7 @@
           const tl = gsap.timeline({ paused: true });
           const D = 15.0;
           const NS = "http://www.w3.org/2000/svg";
-          const COL = { data: "#7fa8ff", model: "#b9a2ff", opt: "#3fd8a8", eval: "#f2c46d", human: "#eef2f6", mute: "#8494a6" };
+          const COL = { data: "#7fa8ff", model: "#b9a2ff", opt: "#3fd8a8", eval: "#f2c46d", human: "#eef2f6", mute: "#9fb0c2" };
           const svg = document.getElementById("arch-svg");
           const el = (tag, at, parent) => {
             const n = document.createElementNS(NS, tag);
@@ -266,6 +269,7 @@
           tl.fromTo("#arch-in", { opacity: 0 }, { opacity: 1, duration: 0.4 }, 0);
           tl.fromTo("#arch-eyebrow", { opacity: 0, x: -24 }, { opacity: 1, x: 0, duration: 0.5, ease: "power2.out" }, 0.1);
           tl.fromTo("#arch-title", { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.7, ease: "power3.out" }, 0.2);
+          tl.fromTo("#arch-sub", { opacity: 0 }, { opacity: 1, duration: 0.5 }, 0.5);
           tl.fromTo("#arch-diagram", { scale: 0.985 }, { scale: 1, duration: D, ease: "sine.out" }, 0);
           fade("#arch-legend", 0.5, 0.5);
           fade("#arch-lane1", 0.6, 0.5);
@@ -352,7 +356,7 @@
           const CP = 13.0;
           const dimSel = ["#c-hubs", "#c-cities", "#c-hubs-lab", "#c-cities-lab", "#n-cal", "#n-naive", "#n-rule", "#n-rate", "#n-nfr",
             "#n-acc", "#f-acc", "#n-human", "#arch-g1", "#arch-in .wl"];
-          tl.to(dimSel, { opacity: 0.28, duration: 0.5, ease: "power2.out" }, CP);
+          tl.to(dimSel, { opacity: 0.75, duration: 0.5, ease: "power2.out" }, CP); // stays >= 4.5:1
           Object.values(W).forEach((w) => {
             if (w.crit) tl.to(w.path, { attr: { "stroke-width": 6, opacity: 1 }, duration: 0.5 }, CP);
             else tl.to([w.path, w.head], { attr: { opacity: 0.18 }, duration: 0.5 }, CP);
@@ -361,7 +365,7 @@
           tl.to("#arch-legend", { opacity: 0, duration: 0.3 }, CP);
           tl.fromTo("#arch-crit", { opacity: 0, y: -8 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, CP + 0.2);
 
-          tl.to("#arch-in", { opacity: 0, duration: 0.4, ease: "power2.in" }, D - 0.4);
+          tl.to("#arch-in", { opacity: 0, duration: 0.4, ease: "power2.in" }, D - 0.8); // dip: fully out before the next scene starts
           window.__timelines["arch"] = tl;
         })();
       </script>

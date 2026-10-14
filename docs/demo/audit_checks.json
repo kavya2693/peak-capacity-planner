@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-14 14:42",
+ "generated": "2026-10-14 18:57",
  "commit": "e7248d751fba80345b2c28598d66cd4727f348b3",
  "checks": [
   {
@@ -44,7 +44,7 @@
   },
   {
    "id": "F-06",
-   "shown": "delivered within 60 minutes / promise 60 min",
+   "shown": "On time = delivered within 60 minutes of the order / promise 60 min",
    "type": "direct",
    "computed": "true",
    "expect": "true",
@@ -67,6 +67,22 @@
    "status": "pass"
   },
   {
+   "id": "F-81",
+   "shown": "51 peak days planned",
+   "type": "direct",
+   "computed": "51",
+   "expect": "51",
+   "status": "pass"
+  },
+  {
+   "id": "F-82",
+   "shown": "Peak = Ramadan, Eid and a November mega-sale",
+   "type": "direct",
+   "computed": "true",
+   "expect": "true",
+   "status": "pass"
+  },
+  {
    "id": "F-09",
    "shown": "\u2713 more on time \u2713 lower rider cost \u2713 lower total cost",
    "type": "derived",
@@ -84,7 +100,7 @@
   },
   {
    "id": "F-11",
-   "shown": "85% / derate 0.85 / riders at 85%",
+   "shown": "85% / 0.85 margin / margin 0.85 / 85% margin / riders at 85%",
    "type": "direct",
    "computed": "true",
    "expect": "true",
@@ -124,7 +140,7 @@
   },
   {
    "id": "F-16",
-   "shown": "generate.py \u00b7 seed 11",
+   "shown": "generate.py seed 11",
    "type": "direct",
    "computed": "true",
    "expect": "true",
@@ -148,7 +164,7 @@
   },
   {
    "id": "F-19",
-   "shown": "HistGB \u00b7 Poisson",
+   "shown": "gradient boosting",
    "type": "direct",
    "computed": "true",
    "expect": "true",
@@ -172,7 +188,7 @@
   },
   {
    "id": "F-22",
-   "shown": "CBC gap 0.5%",
+   "shown": "solver gap 0.5%",
    "type": "direct",
    "computed": "true",
    "expect": "true",
@@ -188,7 +204,7 @@
   },
   {
    "id": "F-24",
-   "shown": "CPU backstop 20 s",
+   "shown": "time backstop 20 s",
    "type": "direct",
    "computed": "true",
    "expect": "true",
@@ -220,7 +236,7 @@
   },
   {
    "id": "F-28",
-   "shown": "\u2713 tested vs Erlang C",
+   "shown": "\u2713 checked vs queue maths",
    "type": "direct",
    "computed": "true",
    "expect": "true",
@@ -228,7 +244,7 @@
   },
   {
    "id": "F-29",
-   "shown": "Pick the derate \u00b7 from the replay, not assumed \u00b7 derate 0.85",
+   "shown": "Pick the margin \u00b7 from the replay, not assumed \u00b7 margin 0.85",
    "type": "direct",
    "computed": "true",
    "expect": "true",
@@ -492,7 +508,7 @@
   },
   {
    "id": "F-64",
-   "shown": "naive forecast 43.9%",
+   "shown": "naive forecast 43.9% / 43.9% on Eid",
    "type": "direct",
    "computed": "43.9",
    "expect": "43.9",
@@ -516,18 +532,10 @@
   },
   {
    "id": "F-67",
-   "shown": "8.6%",
+   "shown": "8.6% (TRAP)",
    "type": "direct",
    "computed": "8.6",
    "expect": "8.6",
-   "status": "pass"
-  },
-  {
-   "id": "F-68",
-   "shown": "bias \u22127.2%",
-   "type": "direct",
-   "computed": "-7.2",
-   "expect": "-7.2",
    "status": "pass"
   },
   {
@@ -540,26 +548,58 @@
   },
   {
    "id": "F-70",
-   "shown": "bias \u221211.6%",
+   "shown": "still 11.6% under",
    "type": "direct",
    "computed": "-11.6",
    "expect": "-11.6",
    "status": "pass"
   },
   {
-   "id": "F-71",
-   "shown": "7.5%",
+   "id": "F-75",
+   "shown": "Judge forecasts by the plan they make \u00b7 same planner and replay",
    "type": "direct",
-   "computed": "7.5",
-   "expect": "7.5",
+   "computed": "true",
+   "expect": "true",
    "status": "pass"
   },
   {
-   "id": "F-72",
-   "shown": "6 of 12 hubs miss 99%",
-   "type": "derived",
-   "computed": "6",
-   "expect": "6",
+   "id": "F-76",
+   "shown": "9.7%",
+   "type": "direct",
+   "computed": "9.7",
+   "expect": "9.7",
+   "status": "pass"
+  },
+  {
+   "id": "F-77",
+   "shown": "3.9% (the floor, not available)",
+   "type": "direct",
+   "computed": "3.9",
+   "expect": "3.9",
+   "status": "pass"
+  },
+  {
+   "id": "F-78",
+   "shown": "9.11M vs 10.04M AED",
+   "type": "direct",
+   "computed": "9.11 10.04",
+   "expect": "9.11 10.04",
+   "status": "pass"
+  },
+  {
+   "id": "F-79",
+   "shown": "88.0%",
+   "type": "direct",
+   "computed": "88.0",
+   "expect": "88.0",
+   "status": "pass"
+  },
+  {
+   "id": "F-80",
+   "shown": "NEXT \u00b7 plan it over several sale sizes",
+   "type": "direct",
+   "computed": "true",
+   "expect": "true",
    "status": "pass"
   },
   {
