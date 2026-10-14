@@ -78,6 +78,7 @@ def plan_city_day(
     own_available: int,
     target: float,
     derate: float = 1.0,
+    cap_rule: str = "fluid",
     max_nodes: int = 200,
     time_limit: int = 20,
 ) -> CityDayPlan:
@@ -140,8 +141,10 @@ def plan_city_day(
         r = riders_on_duty(o, g)
         a = np.array([acc[h, t].value() or 0.0 for t in hours])
         spills = np.array([spill[h, t].value() or 0.0 for t in hours])
-        # The storefront keeps an hour open until the roster's throughput for that hour is sold.
-        cap = np.maximum(a, derate * rate[h] * r)
+        # The storefront keeps an hour open until the roster's throughput for that hour is sold:
+        # at the flat-out rate ("fluid") or at the derated rate the roster was sized with.
+        sell_rate = rate[h] if cap_rule == "fluid" else derate * rate[h]
+        cap = np.maximum(a, sell_rate * r)
         plan.hubs.append(
             HubPlan(
                 hub=h,

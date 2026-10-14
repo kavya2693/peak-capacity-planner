@@ -38,6 +38,7 @@ class Config:
     method: str  # "mip" | "rule"
     target: float = 0.99
     derate: float = 1.0
+    cap_rule: str = "fluid"  # slot cap at flat-out rider throughput, or "derated"
 
 
 def segment(d: date) -> str:
@@ -70,6 +71,7 @@ def default_configs(quick: bool) -> list[Config]:
         Config("mip_t99_d85_naive", "naive", "mip", 0.99, 0.85),
         Config("mip_t99_d100_oracle", "oracle", "mip", 0.99, 1.0),
         Config("mip_t99_d85_oracle", "oracle", "mip", 0.99, 0.85),
+        Config("mip_t99_d85_derated_caps", "model", "mip", 0.99, 0.85, "derated"),
     ]
     return configs
 
@@ -99,6 +101,7 @@ def _solve(task: CityDayTask) -> tuple[CityDayTask, CityDayPlan]:
             task.own_available,
             task.config.target,
             task.config.derate,
+            task.config.cap_rule,
         )
     return task, plan
 
@@ -240,7 +243,7 @@ def _agg(g: pd.DataFrame) -> pd.Series:
 
 
 def summarise(hub_day: pd.DataFrame) -> dict[str, pd.DataFrame]:
-    keys = ["config", "forecaster", "method", "target", "derate"]
+    keys = ["config", "forecaster", "method", "target", "derate", "cap_rule"]
     hub_day = hub_day.assign(below_target=hub_day["on_time"] / hub_day["accepted"] < hub_day["target"])
     summary = hub_day.groupby(keys).apply(_agg, include_groups=False).reset_index()
     by_segment = hub_day.groupby([*keys, "segment"]).apply(_agg, include_groups=False).reset_index()
