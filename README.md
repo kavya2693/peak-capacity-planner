@@ -8,6 +8,174 @@ How many delivery riders each grocery hub needs, on which shifts, and how many o
 each hour, through Ramadan and a November mega-sale that brings four times a normal day's orders.
 The plan comes from a mixed-integer program and is then checked order by order in a replay.
 
+[![86-second silent walkthrough: the peak-staffing problem, how the plan is made, the architecture, the replay and the results](docs/demo/demo.gif)](docs/demo/demo.mp4)
+
+*86-second silent walkthrough. Click for the full video ([MP4, 5.8 MB](docs/demo/demo.mp4)).*
+
+📄 **Audit report:** every figure and assumption in the video, traced to its source — [PDF](docs/demo/AUDIT_REPORT.pdf) · [Word](docs/demo/AUDIT_REPORT.docx) · [Markdown](docs/demo/AUDIT_REPORT.md)
+
+## At a glance
+
+| | |
+|---|---|
+| **Problem** | Commit riders and agency blocks for 12 hubs weeks ahead of Ramadan, Eid and a 4.2x mega-sale, against a forecast, with a one-hour delivery promise. |
+| **Approach** | Event-aware demand forecast, a per-city-day MIP (PuLP + CBC) for shifts and hourly slot caps, and an order-by-order replay against true demand that judges every plan. |
+| **Result** | Against last season's playbook over 51 peak days: 17.6% less rider cost, 6.4% less total cost including lost margin, on-time for accepted orders up from 76.9% to 98.9%. |
+| **What didn't win** | No plan reaches 99% on time without turning customers away; the 99.9% version refuses 9.4% of customers and costs 1.03M AED more. On the sale day the model's daily forecast (11.6% WAPE, 11.6% under) loses to last year's figure (8.6%). |
+
+## Architecture
+
+![Architecture walkthrough: sources, cleaning, the forecasters, the city-day planner and the order replay that scores it](docs/demo/architecture.gif)
+
+```mermaid
+flowchart LR
+    subgraph SRC["Sources"]
+        hourly[("hourly_orders.csv.gz<br/>scripts/generate_data.py")]
+        static[("hubs.csv · cities.csv<br/>trip minutes, space, rider pool")]
+        cal["Event calendar<br/>calendar.py · config.py"]
+    end
+
+    subgraph DATA["Data and features"]
+        clean["Feed cleaning in DuckDB SQL<br/>transforms.clean"]
+        daily[("Cleaned hub-hours and hub-days<br/>transforms.daily_orders")]
+        prof["Hourly shape per kind of day<br/>transforms.hourly_profiles"]
+    end
+
+    subgraph MOD["Models"]
+        em["Event model, HistGB Poisson<br/>forecast.event_model"]
+        naive["Seasonal naive baseline<br/>forecast.seasonal_naive"]
+        rate["Fluid rider rate, iftar traffic<br/>service.py"]
+    end
+
+    subgraph DEC["Decision"]
+        orch["13 configurations, 1,989 city-day plans<br/>experiment.py · cli.py"]
+        mip["City-day MIP, PuLP + CBC<br/>plan.plan_city_day"]
+        rot["Rule of thumb<br/>plan.rule_of_thumb"]
+    end
+
+    subgraph EVAL["Evaluation"]
+        replay["Order replay on true demand<br/>replay.replay_hub_day"]
+        acc["Forecast WAPE and bias by slice<br/>forecast.accuracy"]
+        erlang["Erlang C check on the dispatcher<br/>tests/test_replay.py"]
+    end
+
+    subgraph OUT["Outputs"]
+        res[("results/*.csv · summary.json")]
+        rep["run_report.md<br/>report.py"]
+    end
+
+    hourly -->|"orders_recorded"| clean
+    cal -->|"regime, event_day"| clean
+    clean --> daily
+    daily -->|"days before cutoff"| em
+    daily --> naive
+    daily --> prof
+    prof -->|"hour shares"| em
+    cal -->|"days to Eid, sale"| em
+    em -->|"hourly forecast"| orch
+    naive -.->|"comparison arm"| orch
+    hourly -.->|"true demand, oracle arm"| orch
+    static --> orch
+    rate -->|"orders per rider-hour"| mip
+    orch -->|"city-day task"| mip
+    orch -->|"city-day task"| rot
+    mip -->|"roster + slot caps"| replay
+    rot -->|"roster"| replay
+    hourly -->|"true demand"| replay
+    em --> acc
+    naive --> acc
+    replay -->|"hub_day rows"| res
+    acc --> res
+    res --> rep
+    erlang -.->|"validates"| replay
+    replay -.->|"plan-to-replay gap sets derate 0.85"| mip
+
+    classDef data fill:#7fa8ff,stroke:#3b5bab,color:#0b1020
+    classDef models fill:#b9a2ff,stroke:#6a4fc4,color:#0b1020
+    classDef decision fill:#3fd8a8,stroke:#1d8a68,color:#0b1020
+    classDef evaluation fill:#f2c46d,stroke:#a67c22,color:#0b1020
+    classDef risk fill:#ff8a73,stroke:#b2462f,color:#0b1020
+    class hourly,static,cal,clean,daily,prof,res,rep data
+    class em,naive,rate models
+    class orch,mip decision
+    class replay,acc,erlang evaluation
+    class rot risk
+```
+
+Blue is data, violet the models, green the decision layer, amber the evaluation, and red the
+baseline the plan has to beat. Dotted edges are the comparison arms and the one feedback loop:
+the derate is chosen from the gap between planned and replayed on-time, not assumed.
+
+### Components
+
+| Component | Responsibility | File |
+|---|---|---|
+| Data generator | Seeded three-year hourly order history, hub and city tables, feed defects | [`scripts/generate_data.py`](scripts/generate_data.py), [`generate.py`](src/peak_capacity/generate.py) |
+| Event calendar | Ramadan, Eid, sale and national-day features counted from the event, not the date | [`calendar.py`](src/peak_capacity/calendar.py), [`config.py`](src/peak_capacity/config.py) |
+| Feed cleaning | Fill gaps, replace spikes, flag closures with SQL windows per hub, hour and kind of day | [`transforms.py`](src/peak_capacity/transforms.py) |
+| Forecasters | Event model on ratio to hub level, seasonal naive baseline, accuracy by slice | [`forecast.py`](src/peak_capacity/forecast.py) |
+| Rider rate | Orders per rider-hour from trip time and iftar traffic, shared by planner and replay | [`service.py`](src/peak_capacity/service.py) |
+| Planner | City-day MIP over shifts, agency blocks and hourly acceptance; rule-of-thumb baseline | [`plan.py`](src/peak_capacity/plan.py) |
+| Order replay | Minute-level arrivals, lognormal trips, no-shows, FIFO dispatch, 60-minute promise | [`replay.py`](src/peak_capacity/replay.py) |
+| Experiment runner | Builds 13 configurations, solves city-days in a process pool, replays, aggregates | [`experiment.py`](src/peak_capacity/experiment.py), [`cli.py`](src/peak_capacity/cli.py) |
+| Reporting | Writes `results/*.csv`, `summary.json` and `run_report.md` | [`report.py`](src/peak_capacity/report.py) |
+
+### Design decisions
+
+Full reasoning in [ADR-0001](docs/adr/0001-plan-with-a-fluid-mip-judge-with-an-order-replay.md).
+
+| Decision | Options considered | Chosen | Trade-off |
+|---|---|---|---|
+| How to forecast moving events | Same day last year; event-relative features | Gradient-boosted ratio to the hub's recent level, features counted from the event | Wins every Ramadan slice; cannot extrapolate a sale that grows each year (11.6% under on the sale day) |
+| Capacity inside the optimiser | Erlang C (non-linear); stochastic programming over scenarios; fluid rate with a derate | Fluid rate x one derate (0.85) measured in the replay | Linear and fast; one number over-staffs quiet hours to protect busy ones |
+| Planning unit | Each hub alone; each city-day | City-day, sharing the own-rider pool across its hubs | No double-booked riders; pool is checked per day, not per week |
+| How plans are judged | The planner's own on-time; an independent order replay | Replay that shares only roster, slot caps and mean trip time with the planner | Exposes the queueing gap; costs a second model of the operation, tested against Erlang C first |
+| Slot caps on the storefront | Sell up to the derated rate; sell up to flat-out throughput | Flat-out, with derated caps kept as an ablation | About one point of on-time traded for half the turned-away customers (4.8% vs 9.4%) |
+| Solver stopping rule | Wall-clock limit; node limit | 0.5% gap or 200 nodes per city-day, 20 CPU seconds as backstop | Repeatable plans; cost differences under 0.5% are noise |
+
+### Data contracts
+
+| Stage | Key fields (type) | Grain |
+|---|---|---|
+| `hourly_orders.csv.gz` | `date` (date), `hub`, `city` (str), `op_hour`, `clock_hour` (int), `orders` (int, true demand), `orders_recorded` (float, nullable) | hub x day x operating hour, 07:00 to 03:00 |
+| `hubs.csv` / `cities.csv` | `hub`, `city` (str), `base_daily` (int), `trip_minutes` (float), `max_on_duty` (int) / `city`, `own_pool` (int) | one row per hub / city |
+| Cleaned feed | `orders_clean` (float), `regime` (str), `event_day`, `was_gap`, `was_spike`, `outage` (bool) | hub x day x hour |
+| Forecast | `date`, `hub`, `city`, `op_hour`, `forecast` (float) | hub x day x hour, as of the window cutoff |
+| Plan | `own` / `gig` (start hour -> riders), `riders` and `slot_cap` per hour (array), planned `accepted`, `on_time`, `lost`, `rider_cost`, solver `status` | hub x day, solved per city-day |
+| `results/hub_day.csv` | config columns, `solver_status`, `own_riders`, `gig_blocks`, `rider_cost`, planned vs replayed `accepted`, `lost`, `on_time`, `late`, `undelivered`, `p90_minutes` | configuration x hub x day |
+
+### Failure modes and fallbacks
+
+| Condition | What the code does |
+|---|---|
+| Missing hub-hours in the feed | Filled with the hour's expected share of its own day (1,340 filled in the run). |
+| Duplicated-event spike | An hour 4 sigma above what the rest of its day implies is replaced with the expected count. Over-flags: 309 replaced, three of them planted. |
+| Hub closure | A day below 30% of the hub's trailing 28-day median is flagged and kept out of the hub level, the training rows and the hourly shapes. |
+| Data arriving after the cutoff | Never read: the forecast is made as of the cutoff, tested by zeroing everything after it. The cleaning window is centred, so hours within two weeks of the cutoff see a little future data (listed limitation). |
+| Forecast under-calls demand | No automatic fallback. Slot caps turn the excess into turned-away customers rather than late orders; the seasonal naive forecast runs alongside as a comparison arm and accuracy is reported per slice. The sale-day under-forecast is listed in Known limitations. |
+| Solver does not prove the gap | CBC returns its best plan at 200 nodes or 20 CPU seconds; the status is kept per hub-day in `solver_status` (1-19% of city-days per configuration). Every city-day is feasible by construction, since accepting no orders satisfies every constraint. |
+| Riders do not show up | Not hedged in the plan beyond the derate; the replay applies 3% own and 8% agency no-shows, so the cost shows up in the replayed on-time share. |
+
+### Path to production
+
+This is a mapping of each local piece to a managed equivalent, not a deployed system.
+
+| Local, in this repo | Production equivalent |
+|---|---|
+| Seeded CSVs in `data/` | Order-event table in a warehouse (BigQuery, Snowflake), partitioned by date and hub |
+| DuckDB cleaning SQL | The same SQL as a scheduled dbt model on the warehouse |
+| HistGradientBoosting fitted in-process at each cutoff | Training job per planning cutoff (Vertex AI, SageMaker), model registry, versioned features |
+| PuLP + CBC in a local process pool | Containerised solver fan-out per city-day (Cloud Run jobs, AWS Batch); HiGHS or a commercial solver if runtime binds |
+| `make run` | Orchestrated DAG (Airflow, Step Functions) run weekly from the forecast cutoff to the window |
+| `results/*.csv` and `run_report.md` | Planning tables feeding the roster tool and an operations dashboard |
+| Order replay | Nightly backtest of the committed plan against actual order and delivery timestamps |
+
+Monitoring would track the same numbers the repo reports: daily and hourly WAPE and bias per
+slice against the seasonal naive forecast, the gap between planned and replayed on-time (the
+signal to re-estimate the derate), the turned-away share, and the share of city-days where the
+solver stopped short of the gap. Retraining is already per cutoff; in production it would run
+at each planning cutoff and whenever forecast bias on a slice drifts past a set band.
+
 ## The problem
 
 A grocery delivery operator runs 12 hubs across three cities and promises delivery within an
