@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import itertools
+
 import numpy as np
 
 from peak_capacity.config import N_HOURS, OWN_SHIFT_COST
@@ -33,7 +35,9 @@ def test_raising_the_target_never_makes_the_plan_cheaper() -> None:
     for target in (0.9, 0.97, 0.995):
         p = _plan(target)
         costs.append(p.rider_cost + 30 * sum(h.lost for h in p.hubs))
-    assert costs == sorted(costs)
+    # CBC stops within 0.5% of optimal, so two plans that close can come out in either order.
+    assert all(later >= earlier * (1 - 0.005) for earlier, later in itertools.pairwise(costs))
+    assert costs[-1] > costs[0]
 
 
 def test_space_limit_forces_slot_closures_not_extra_riders() -> None:
