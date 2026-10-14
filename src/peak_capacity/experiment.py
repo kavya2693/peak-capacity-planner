@@ -63,12 +63,14 @@ def default_configs(quick: bool) -> list[Config]:
             Config("mip_t99_d85", "model", "mip", 0.99, 0.85),
         ]
     configs = [Config("rule_of_thumb", "model", "rule")]
-    for derate in (1.0, 0.85, 0.7):
+    for derate in (1.0, 0.85):
         for target in (0.95, 0.97, 0.99, 0.995):
             configs.append(Config(f"mip_t{target * 100:g}_d{derate * 100:g}", "model", "mip", target, derate))
-    for fc in ("naive", "oracle"):
-        for derate in (1.0, 0.85):
-            configs.append(Config(f"mip_t99_d{derate * 100:g}_{fc}", fc, "mip", 0.99, derate))
+    configs += [
+        Config("mip_t99_d85_naive", "naive", "mip", 0.99, 0.85),
+        Config("mip_t99_d100_oracle", "oracle", "mip", 0.99, 1.0),
+        Config("mip_t99_d85_oracle", "oracle", "mip", 0.99, 0.85),
+    ]
     return configs
 
 

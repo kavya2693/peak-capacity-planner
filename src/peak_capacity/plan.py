@@ -78,8 +78,8 @@ def plan_city_day(
     own_available: int,
     target: float,
     derate: float = 1.0,
-    max_nodes: int = 2000,
-    time_limit: int = 120,
+    max_nodes: int = 200,
+    time_limit: int = 20,
 ) -> CityDayPlan:
     """`demand[h][t]` expected orders, `rate[h][t]` orders per rider-hour at fluid speed."""
     prob = pulp.LpProblem(f"plan_{city}", pulp.LpMinimize)

@@ -53,8 +53,10 @@ one-hour promise at the lowest cost. Three things make that easy to get wrong:
   refusing orders, and the first replays did exactly that on the sale day.
 
 ## Consequences
-- CBC is run with a 0.5% optimality gap and a 10-second limit per city-day so the full grid
-  (17 configurations, 51 days, 3 cities) runs in tens of minutes. Differences between plans
-  smaller than about 0.5% of cost are noise.
+- CBC stops at a 0.5% optimality gap or 200 branch-and-bound nodes per city-day, with 20 CPU
+  seconds as a backstop, and agency blocks start on even hours. That keeps the full grid
+  (12 configurations, 51 days, 3 cities) to a manageable run on a shared machine, and a node
+  limit returns the same plan on a rerun where a wall-clock limit would not. Differences
+  between plans smaller than about 0.5% of cost are noise.
 - The derate is one number for every hour and hub; it over-staffs quiet hours to protect busy
   ones. A per-utilisation derate is the obvious next step.

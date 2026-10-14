@@ -58,7 +58,7 @@ LOST_ORDER_COST = 30.0  # gross margin plus a share of the customer's lifetime v
 LATE_ORDER_COST = 0.01  # tie-breaker only; lateness is governed by the on-time constraint
 
 OWN_STARTS = (0, 2, 4, 6, 8, 10, 12)  # 07:00 ... 19:00
-GIG_STARTS = tuple(range(0, N_HOURS - GIG_BLOCK_HOURS + 1))  # any hour, block must end by close
+GIG_STARTS = tuple(range(0, N_HOURS - GIG_BLOCK_HOURS + 1, 2))  # agencies book on even hours
 
 OWN_NO_SHOW = 0.03
 GIG_NO_SHOW = 0.08
