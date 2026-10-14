@@ -36,6 +36,10 @@ one-hour promise at the lowest cost. Three things make that easy to get wrong:
 - **Treat the gap between planned and replayed on-time as a measured quantity and close it
   with one parameter**, a derate on fluid rider throughput, chosen from the replay rather than
   assumed.
+- **Sell slots up to the roster's flat-out throughput, not the derated one.** The derate sizes
+  the roster; the storefront keeps an hour open until the full rider capacity is sold and lets
+  the queue absorb the variance. Selling only up to the derated rate is kept as an ablation: it
+  lifts replayed on-time by about a point and doubles the share of customers turned away.
 - **Report two on-time numbers**: on-time share of accepted orders (what the operation
   reports) and on-time share of everyone who tried to order (which closing slots cannot
   flatter).
