@@ -1,4 +1,37 @@
 [    0.6s] cleaned feed: {'hub_hours': 263040, 'gaps_filled': 1340.0, 'spikes_replaced': 309.0, 'outage_hub_days': 2}
-[    2.8s] solving 1836 city-day plans for 12 configurations with 6 workers
-[   11.1s]   solved 200/1836 city-day plans
-[   25.8s]   solved 400/1836 city-day plans
+[    3.0s] solving 1989 city-day plans for 13 configurations with 6 workers
+[   11.1s]   solved 200/1989 city-day plans
+[   26.7s]   solved 400/1989 city-day plans
+[   42.9s]   solved 600/1989 city-day plans
+[   50.4s]   solved 800/1989 city-day plans
+[   58.1s]   solved 1000/1989 city-day plans
+[   67.5s]   solved 1200/1989 city-day plans
+[   77.2s]   solved 1400/1989 city-day plans
+[   84.2s]   solved 1600/1989 city-day plans
+[   95.6s]   solved 1800/1989 city-day plans
+[  108.0s]   replayed 200/1989 city-days
+[  110.2s]   replayed 400/1989 city-days
+[  112.5s]   replayed 600/1989 city-days
+[  114.8s]   replayed 800/1989 city-days
+[  117.1s]   replayed 1000/1989 city-days
+[  119.3s]   replayed 1200/1989 city-days
+[  121.6s]   replayed 1400/1989 city-days
+[  124.2s]   replayed 1600/1989 city-days
+[  127.7s]   replayed 1800/1989 city-days
+                          rider_cost  lost_margin  total_cost  planned_otd  replay_otd  lost_share
+config                                                                                            
+mip_t95_d100               6990980.0    1279890.0   8270870.0       0.9502      0.9071      0.0565
+mip_t95_d85                7965100.0     935670.0   8900770.0       0.9501      0.9740      0.0413
+mip_t97_d100               7088360.0    1403490.0   8491850.0       0.9700      0.9372      0.0620
+mip_t97_d85                7947970.0    1048140.0   8996110.0       0.9700      0.9836      0.0463
+mip_t99.5_d100             7220620.0    1587090.0   8807710.0       0.9950      0.9666      0.0701
+mip_t99.5_d85              8042350.0    1085880.0   9128230.0       0.9950      0.9893      0.0480
+mip_t99_d100               7186510.0    1558230.0   8744740.0       0.9900      0.9643      0.0688
+mip_t99_d100_oracle        7046020.0    1005420.0   8051440.0       0.9900      0.9503      0.0444
+mip_t99_d85                8015150.0    1092030.0   9107180.0       0.9900      0.9890      0.0482
+mip_t99_d85_derated_caps   8015150.0    2118750.0  10133900.0       0.9900      0.9992      0.0936
+mip_t99_d85_naive          7836780.0    2201100.0  10037880.0       0.9900      0.9750      0.0972
+mip_t99_d85_oracle         7934790.0     883530.0   8818320.0       0.9900      0.9962      0.0390
+rule_of_thumb              9731060.0          0.0   9731060.0          NaN      0.7692      0.0000
+[  131.2s] done; tables in results/
+EXIT 0

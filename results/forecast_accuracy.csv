@@ -1,0 +1,17 @@
+segment,hub_days,daily_wape,hourly_wape,bias,window,forecaster
+eid,96,0.0846032,0.197264,0.0277076,ramadan_2025,model
+ordinary,60,0.0682588,0.194457,0.0222123,ramadan_2025,model
+ramadan,228,0.0722024,0.18967,0.0141149,ramadan_2025,model
+ramadan_last10,84,0.0711068,0.193008,-0.009362,ramadan_2025,model
+all,468,0.0739678,0.19242,0.0127227,ramadan_2025,model
+eid,96,0.438694,0.601506,0.210306,ramadan_2025,naive
+ordinary,60,0.12472,0.273054,-0.109208,ramadan_2025,naive
+ramadan,228,0.109457,0.413827,-0.0348846,ramadan_2025,naive
+ramadan_last10,84,0.156208,0.275825,-0.144901,ramadan_2025,naive
+all,468,0.186051,0.405539,-0.0183482,ramadan_2025,naive
+sale_day,12,0.116397,0.177359,-0.116397,mega_sale_2025,model
+sale_week,132,0.0747781,0.181243,0.00622069,mega_sale_2025,model
+all,144,0.0835147,0.180427,-0.0195192,mega_sale_2025,model
+sale_day,12,0.0864473,0.229166,-0.0720849,mega_sale_2025,naive
+sale_week,132,0.112374,0.256476,0.0102691,mega_sale_2025,naive
+all,144,0.106931,0.250743,-0.0070186,mega_sale_2025,naive
